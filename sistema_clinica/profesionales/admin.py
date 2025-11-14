@@ -3,7 +3,6 @@ from .models import Profesional
 
 @admin.register(Profesional)
 class ProfesionalAdmin(admin.ModelAdmin):
-    list_display = ("id", "nombre", "apellido", "especialidad")
-    search_fields = ("nombre", "apellido", "especialidad")
-    list_filter = ("especialidad",)
-    ordering = ("apellido", "nombre")
+    list_display = ("id", "nombre", "especialidad", "telefono")
+    search_fields = ("nombre", "especialidad")
+    ordering = ("nombre",)

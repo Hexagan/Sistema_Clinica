@@ -3,6 +3,6 @@ from .models import PerfilUsuario
 
 @admin.register(PerfilUsuario)
 class PerfilUsuarioAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "telefono", "direccion")
-    search_fields = ("user__username", "user__email")
-    ordering = ("user__username",)
+    list_display = ("id", "usuario", "telefono", "direccion")
+    search_fields = ("usuario__username", "usuario__email")
+    ordering = ("usuario__username",)

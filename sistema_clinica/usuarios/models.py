@@ -12,10 +12,6 @@ class PerfilUsuario(models.Model):
     # Relación: un usuario puede gestionar varios pacientes
     pacientes = models.ManyToManyField(Paciente, related_name="responsables", blank=True)
 
-    def __str__(self):
-        return f"Perfil de {self.usuario.username}"
-
-
 # Crear automáticamente un perfil cuando se crea un usuario
 @receiver(post_save, sender=User)
 def crear_perfil_usuario(sender, instance, created, **kwargs):
@@ -25,3 +21,4 @@ def crear_perfil_usuario(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def guardar_perfil_usuario(sender, instance, **kwargs):
     instance.perfil.save()
+

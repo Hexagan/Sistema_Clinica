@@ -3,6 +3,7 @@ from .models import Amenity
 
 @admin.register(Amenity)
 class AmenityAdmin(admin.ModelAdmin):
-    list_display = ("id", "nombre", "descripcion", "precio")
+    list_display = ("id", "nombre", "descripcion")
     search_fields = ("nombre",)
     ordering = ("nombre",)
+
