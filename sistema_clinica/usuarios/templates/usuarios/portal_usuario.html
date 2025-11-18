@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal de Usuario - Clínica</title>
+    <link rel="stylesheet" href="{% static 'css/portal_usuario.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Bienvenido al Portal de Pacientes</h1>
+        <nav>
+            <a href="{% url 'logout' %}">Cerrar sesión</a>
+        </nav>
+    </header>
+
+    <section>
+        <h2>Gestión de Pacientes</h2>
+        <form method="post" action="{% url 'agregar_paciente' %}">
+            {% csrf_token %}
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required>
+            <label for="dni">DNI:</label>
+            <input type="text" id="dni" name="dni" required>
+            <label for="fecha_nacimiento">Fecha de nacimiento:</label>
+            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+            <button type="submit">Agregar paciente</button>
+        </form>
+
+        <h3>Pacientes registrados</h3>
+        <ul>
+            {% for paciente in pacientes %}
+                <li>
+                    {{ paciente.nombre }} (DNI: {{ paciente.dni }}) 
+                    <a href="{% url 'ver_turnos' paciente.id %}">Ver turnos</a>
+                </li>
+            {% empty %}
+                <li>No hay pacientes registrados.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section>
+        <h2>Solicitar Turno</h2>
+        <form method="post" action="{% url 'solicitar_turno' %}">
+            {% csrf_token %}
+            <label for="paciente">Paciente:</label>
+            <select id="paciente" name="paciente_id" required>
+                {% for paciente in pacientes %}
+                    <option value="{{ paciente.id }}">{{ paciente.nombre }}</option>
+                {% endfor %}
+            </select>
+            <label for="especialidad">Especialidad:</label>
+            <select id="especialidad" name="especialidad" required>
+                {% for especialidad in especialidades %}
+                    <option value="{{ especialidad.id }}">{{ especialidad.nombre }}</option>
+                {% endfor %}
+            </select>
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" name="fecha" required>
+            <button type="submit">Solicitar turno</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Beneficios y Amenities</h2>
+        <ul>
+            <li>Wi-Fi gratuito en sala de espera</li>
+            <li>Estacionamiento para pacientes</li>
+            <li>Servicio de cafetería</li>
+            <li>Zona de juegos para niños</li>
+            <li>Atención personalizada</li>
+            <li>Acceso para personas con movilidad reducida</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Clínica Salud. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

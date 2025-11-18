@@ -16,93 +16,107 @@
             background-attachment: fixed;
         }
 
-        /* Overlay para oscurecer la foto */
+        /* Overlay para aclarar u oscurecer */
         body::before {
             content: "";
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 40, 60, 0.55); /* azul oscuro semitransparente */
+            background: rgba(255, 255, 255, 0.438);
             z-index: 0;
         }
 
-        /* Caja centrada */
+        /* Contenedor que centra TODO */
+        .contenedor-portal {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* centra título y login */
+            gap: 16px;           /* espacio entre título y login */
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ---- TÍTULO CON BORDE AZUL ---- */
+       .titulo-portal {
+            color: rgb(77, 77, 77);
+            padding: 6px 14px;
+            border-radius: 6px;
+            background: white;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.25);
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
         .login-panel {
             background: rgba(255, 255, 255, 0.96);
             border-radius: 12px;
             padding: 30px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.25);
-            position: relative;
-            z-index: 1;
+            width: 100%;
+            max-width: 760px; /* ahora SÍ se nota */
         }
 
-        .titulo-portal {
-            color: white;
-            font-size: 28px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 20px;
-            z-index: 2;
-            position: relative;
-        }
-
-        /* Alinear labels e inputs en columna, bien prolijos */
+        /* Alinear labels e inputs en columna */
         .form-group {
             display: flex;
             flex-direction: column;
             margin-bottom: 15px;
         }
 
-        /* Asegurar que los inputs ocupen todo el ancho y se vean iguales */
         .form-group input {
             width: 100%;
             padding: 8px 10px;
             border-radius: 6px;
             border: 1px solid #ced4da;
-            box-sizing: border-box;
             margin-top: 5px;
+            box-sizing: border-box;
         }
+
+
 
     </style>
 </head>
 
 <body>
 
+<div class="container-fluid vh-100 d-flex justify-content-center align-items-center">
 
-<div class="container vh-100 d-flex flex-column justify-content-center">
+    <div class="contenedor-portal">
 
-    <h2 class="titulo-portal">Bienvenido al portal de salud</h2>
+        <h2 class="titulo-portal">Bienvenido al portal de salud</h2>
 
-    <div class="row justify-content-center">
-        <div class="col-md-5">
+        <div class="login-panel">
 
-            <div class="login-panel">
+            <h4 class="text-center mb-4">Ingreso al Portal</h4>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.username.label_tag }}
+                    {{ form.username }}
+                </div>
 
-                <h4 class="text-center mb-4">Ingreso al Portal</h4>
-                
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        {{ form.username.label_tag }}
-                        {{ form.username }}
-                    </div>
+                <div class="form-group">
+                    {{ form.password.label_tag }}
+                    {{ form.password }}
+                </div>
 
-                    <div class="form-group">
-                        {{ form.password.label_tag }}
-                        {{ form.password }}
-                    </div>
+                <button class="btn btn-primary w-100 mt-2">Ingresar</button>
+            </form>
 
-                    <button class="btn btn-primary w-100 mt-2">Ingresar</button>
-                </form>
+            <p class="text-center mt-3">
+                ¿No tenés cuenta?
+                <a href="{% url 'usuarios:registrar' %}" class="fw-bold">Registrate aquí</a>
+            </p>
 
-                <p class="text-center mt-3">
-                    ¿No tenés cuenta?
-                    <a href="{% url 'usuarios:registrar' %}" class="fw-bold">Registrate aquí</a>
-                </p>
-
-            </div>
         </div>
+
     </div>
+
 </div>
 
 </body>
