@@ -3,13 +3,23 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from pacientes.models import Paciente
-
-from .forms import PacienteCustomForm, RegistroCustomForm
+from .forms import PacienteCustomForm, RegistroCustomForm, LoginForm
 
 # -----------------------------
 # REGISTRO DE USUARIO
 # -----------------------------
-from .forms import RegistroCustomForm
+
+
+def login_usuario(request):
+    form = LoginForm(request, data=request.POST or None)
+
+    if request.method == "POST":
+        if form.is_valid():
+            usuario = form.get_user()
+            login(request, usuario)
+            return redirect("usuarios:perfil")
+    return render(request, "usuarios/login.html", {"form": form})
+
 
 def registrar_usuario(request):
     if request.method == "POST":

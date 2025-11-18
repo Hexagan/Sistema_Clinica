@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 
 class PacienteCustomForm(forms.Form):
     nombre = forms.CharField(label="Nombre", max_length=100)
@@ -59,3 +60,12 @@ class RegistroCustomForm(forms.Form):
             self.add_error("password_confirm", "Las contraseñas no coinciden.")
 
         return cleaned
+    
+class LoginForm(AuthenticationForm):
+    
+    username = forms.CharField(widget=forms.TextInput(attrs={
+        "class": "form-control"
+    }))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        "class": "form-control"
+    }))
