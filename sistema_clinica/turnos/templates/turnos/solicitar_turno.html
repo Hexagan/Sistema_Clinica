@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitar Turno</title>
+    <link rel="stylesheet" href="{% static 'css/perfil.css' %}">
+</head>
+<body>
+    <h2>Solicitar turno para {{ paciente.nombre }} {{ paciente.apellido }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Solicitar turno</button>
+    </form>
+    <a href="{% url 'perfil' %}">Volver al portal</a>
+</body>
+</html>

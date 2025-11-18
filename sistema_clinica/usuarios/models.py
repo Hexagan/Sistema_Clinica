@@ -8,17 +8,9 @@ class PerfilUsuario(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name="perfil")
     telefono = models.CharField(max_length=20, blank=True, null=True)
     direccion = models.CharField(max_length=200, blank=True, null=True)
+    pacientes = models.ManyToManyField(Paciente, related_name="responsables", blank=True)     # Relación: un usuario puede gestionar varios pacientes
 
-    # Relación: un usuario puede gestionar varios pacientes
-    pacientes = models.ManyToManyField(Paciente, related_name="responsables", blank=True)
+    def __str__(self):
+        return f"{self.usuario.username} (ID {self.id})"
 
-# Crear automáticamente un perfil cuando se crea un usuario
-@receiver(post_save, sender=User)
-def crear_perfil_usuario(sender, instance, created, **kwargs):
-    if created:
-        PerfilUsuario.objects.create(usuario=instance)
-
-@receiver(post_save, sender=User)
-def guardar_perfil_usuario(sender, instance, **kwargs):
-    instance.perfil.save()
 

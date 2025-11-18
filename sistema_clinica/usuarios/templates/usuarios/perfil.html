@@ -10,13 +10,16 @@
 
     <div class="d-flex justify-content-between align-items-center">
         <h2>Bienvenido, {{ usuario.username }}</h2>
-        <a href="{% url 'usuarios:logout' %}" class="btn btn-danger">Cerrar sesión</a>
+        <form method="POST" action="{% url 'usuarios:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Cerrar sesión</button>
+        </form>
     </div>
 
     <hr>
 
     <h4>Pacientes a tu cargo</h4>
-    <a href="{% url 'usuarios:crear_paciente' %}" class="btn btn-primary mt-3">
+    <a href="{% url 'pacientes:crear_paciente' %}" class="btn btn-primary mt-3">
         + Agregar paciente
     </a>
 
@@ -28,7 +31,7 @@
                 <li class="list-group-item d-flex justify-content-between">
                     {{ p.nombre }} {{ p.apellido }}
                     <a class="btn btn-primary btn-sm"
-                       href="{% url 'usuarios:paciente_detalle' p.pk %}">
+                       href="{% url 'pacientes:paciente_detalle' p.pk %}">
                        Ver
                     </a>
                 </li>

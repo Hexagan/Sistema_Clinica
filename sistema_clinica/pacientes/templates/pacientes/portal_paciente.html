@@ -1,9 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Portal de Usuario - Clínica</title>
-    <link rel="stylesheet" href="{% static 'css/portal_usuario.css' %}">
+    <link rel="stylesheet" href="{% static 'css/perfil.css' %}">
 </head>
 <body>
     <header>
@@ -15,7 +16,7 @@
 
     <section>
         <h2>Gestión de Pacientes</h2>
-        <form method="post" action="{% url 'agregar_paciente' %}">
+        <form method="post" action="{% url 'pacientes:crear_paciente' %}">
             {% csrf_token %}
             <label for="nombre">Nombre:</label>
             <input type="text" id="nombre" name="nombre" required>
@@ -31,7 +32,7 @@
             {% for paciente in pacientes %}
                 <li>
                     {{ paciente.nombre }} (DNI: {{ paciente.dni }}) 
-                    <a href="{% url 'ver_turnos' paciente.id %}">Ver turnos</a>
+                    <a href="{% url 'turnos:ver_turnos' paciente.id %}">Ver turnos</a>
                 </li>
             {% empty %}
                 <li>No hay pacientes registrados.</li>
@@ -41,7 +42,7 @@
 
     <section>
         <h2>Solicitar Turno</h2>
-        <form method="post" action="{% url 'solicitar_turno' %}">
+        <form method="post" action="{% url 'turnos:solicitar_turno' paciente.id %}">
             {% csrf_token %}
             <label for="paciente">Paciente:</label>
             <select id="paciente" name="paciente_id" required>

@@ -22,17 +22,21 @@
 
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
-                        <input name="nombre" type="text" class="form-control" required>
+                        <input name="nombre" type="text" class="form-control"
+                            oninput="this.value = this.value.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '')" required>
+
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Apellido</label>
-                        <input name="apellido" type="text" class="form-control" required>
+                        <input name="apellido" type="text" class="form-control"
+                            oninput="this.value = this.value.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '')" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">DNI</label>
-                        <input name="dni" type="text" class="form-control" required>
+                        <input name="dni" type="text" class="form-control" maxlength="8"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                     </div>
 
                     <div class="mb-3">
@@ -42,7 +46,9 @@
 
                     <div class="mb-3">
                         <label class="form-label">Teléfono</label>
-                        <input name="telefono" type="text" class="form-control" required>
+                        <input name="telefono" type="text" class="form-control" maxlength="10"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+
                     </div>
 
                     <div class="mb-3">
@@ -52,7 +58,18 @@
 
                     <div class="mb-3">
                         <label class="form-label">Obra Social</label>
-                        <input name="obra_social" type="text" class="form-control">
+                        <select name="obra_social" class="form-control" required>
+                            <option value="">Seleccione...</option>
+                            <option value="osecac">Osecac</option>
+                            <option value="osde">OSDE</option>
+                            <option value="ospaca">Ospaca</option>
+                            <option value="osfe">Osfe</option>
+                            <option value="iosfa">IOSFA</option>
+                            <option value="femeba">Femeba</option>
+                            <option value="elevar">Elevar</option>
+                            <option value="osjera">Osjera</option>
+
+                        </select>
                     </div>
 
                     <button class="btn btn-success w-100 mt-3">

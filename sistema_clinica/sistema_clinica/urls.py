@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
+from django.contrib.auth.views import LogoutView
 
 def home_redirect(request):
     if request.user.is_authenticated:
@@ -31,6 +32,7 @@ urlpatterns = [
     path('amenities/', include('amenities.urls')),
     path('servicios/', include('servicios.urls')),
     path('usuarios/', include('usuarios.urls')),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('', home_redirect),
 ]
 
