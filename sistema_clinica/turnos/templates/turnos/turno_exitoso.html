@@ -1,11 +1,37 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Turno solicitado</title>
-</head>
-<body>
-    <h2>¡Turno solicitado con éxito!</h2>
-    <a href="{% url 'usuario:perfil' %}">Volver al portal</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Turno creado{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="alert alert-success text-center shadow">
+            <h4 class="alert-heading">¡Turno creado con éxito!</h4>
+            <p>Tu turno fue registrado correctamente.</p>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body">
+
+                <h5 class="mb-3">Datos del turno</h5>
+
+                <ul class="list-group mb-3">
+                    <li class="list-group-item"><strong>Paciente:</strong> {{ turno.paciente }}</li>
+                    <li class="list-group-item"><strong>Profesional:</strong> {{ turno.profesional }}</li>
+                    <li class-group-item><strong>Fecha:</strong> {{ turno.fecha }}</li>
+                    <li class="list-group-item"><strong>Hora:</strong> {{ turno.hora }}</li>
+                </ul>
+
+                <p><strong>Código QR generado:</strong></p>
+                <code class="d-block bg-light p-2 rounded">{{ turno.qr_code }}</code>
+
+                <a href="{% url 'turnos:ver_turno' turno.id %}" class="btn btn-primary mt-3 w-100">
+                    Ver detalles del turno
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

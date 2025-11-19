@@ -49,13 +49,16 @@ def registrar_usuario(request):
 # USUARIO
 # -----------------------------
 @login_required
-def portal_paciente(request):
-    perfil_usuario = request.user.perfil
-    pacientes = perfil_usuario.pacientes.all()
-    
+def portal_paciente(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
+    # Seguridad: asegurar que ese paciente pertenece al usuario
+    if paciente not in request.user.perfil.pacientes.all():
+        return render(request, "usuarios/acceso_denegado.html")
+
     return render(request, "pacientes/portal_paciente.html", {
         "usuario": request.user,
-        "pacientes": pacientes
+        "paciente": paciente
     })
 
 @login_required

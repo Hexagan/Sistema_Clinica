@@ -1,18 +1,38 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Solicitar Turno</title>
-    <link rel="stylesheet" href="{% static 'css/perfil.css' %}">
-</head>
-<body>
-    <h2>Solicitar turno para {{ paciente.nombre }} {{ paciente.apellido }}</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Solicitar turno</button>
-    </form>
-    <a href="{% url 'perfil' %}">Volver al portal</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Solicitar Turno{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="card shadow">
+            <div class="card-header bg-success text-white text-center">
+                <h4>Solicitar Turno</h4>
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {{ form.non_field_errors }}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Solicitar turno</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,31 +1,41 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from django.urls import reverse
+from .models import Turno, Estado
 from .forms import SolicitarTurnoForm
-from pacientes.models import Paciente
-from turnos.models import Turno, Estado
+import uuid
 
-def solicitar_turno(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
-    if request.method == 'POST':
+# ----------- Solicitar turno -----------
+def solicitar_turno(request):
+
+    if request.method == "POST":
         form = SolicitarTurnoForm(request.POST)
         if form.is_valid():
-            estado_reservado = Estado.objects.get(descripcion="Reservado")
-            Turno.objects.create(
-                paciente=paciente,
-                profesional=form.cleaned_data['profesional'],
-                servicio=form.cleaned_data['servicio'],
-                estado=estado_reservado,
-                fecha=form.cleaned_data['fecha'],
-                hora=form.cleaned_data['hora'],
-                observaciones=form.cleaned_data['observaciones']
-            )
-            return redirect('turno_exitoso')
+            turno = form.save(commit=False)
+
+            # Estado inicial: agendado
+            estado_agendado = Estado.objects.get(descripcion="Agendado")
+            turno.estado = estado_agendado
+
+            # Generar QR único
+            turno.qr_code = str(uuid.uuid4())
+
+            turno.save()
+
+            return redirect(reverse("turnos:turno_exitoso", args=[turno.id]))
     else:
         form = SolicitarTurnoForm()
-    return render(request, 'usuarios/solicitar_turno.html', {'form': form, 'paciente': paciente})
 
-def turno_exitoso(request):
-    return render(request, 'usuarios/turno_exitoso.html')
+    return render(request, "turnos/solicitar_turno.html", {"form": form})
 
-def lista_turnos(request):
-    # lógica para mostrar los turnos
-    pass
+
+# ----------- Turno exitoso -----------
+def turno_exitoso(request, turno_id):
+    turno = get_object_or_404(Turno, id=turno_id)
+    return render(request, "turnos/turno_exitoso.html", {"turno": turno})
+
+
+# ----------- Ver turno -----------
+def ver_turno(request, turno_id):
+    turno = get_object_or_404(Turno, id=turno_id)
+    return render(request, "turnos/ver_turno.html", {"turno": turno})

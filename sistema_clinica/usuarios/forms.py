@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
-from django.core.validators import RegexValidator
 
 class RegistroCustomForm(forms.Form):
     username = forms.CharField(

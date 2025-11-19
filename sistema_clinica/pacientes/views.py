@@ -1,14 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Paciente
+from profesionales.models import Especialidad, Profesional
 
 @login_required
-def portal_paciente(request):
-    pacientes = Paciente.objects.all()
-    especialidades = []  # Reemplazar con modelo
-    return render(request, 'pacientes/portal_paciente.html', {
-        'pacientes': pacientes,
-        'especialidades': especialidades,
+def portal_paciente(request, paciente_id):
+    usuario = request.user
+    perfil = usuario.perfil
+
+    paciente_seleccionado = perfil.pacientes.get(pk=paciente_id)
+
+    return render(request, "portal_paciente.html", {
+        "usuario": usuario,
+        "pacientes": perfil.pacientes.all(),
+        "paciente_seleccionado": paciente_seleccionado,
+        "especialidades": Especialidad.objects.all(),
+        "profesionales": Profesional.objects.all(),
     })
 
 @login_required
@@ -75,3 +82,6 @@ def lista_pacientes(request):
     return render(request, "pacientes/lista_pacientes.html", {
         "pacientes": pacientes
     })
+
+def cambiar_paciente(request, paciente_id):
+    return redirect("usuarios:portal_paciente", paciente_id=paciente_id)

@@ -30,10 +30,17 @@
             {% for p in pacientes %}
                 <li class="list-group-item d-flex justify-content-between">
                     {{ p.nombre }} {{ p.apellido }}
-                    <a class="btn btn-primary btn-sm"
-                       href="{% url 'pacientes:paciente_detalle' p.pk %}">
-                       Ver
-                    </a>
+                    <div>
+                        <a class="btn btn-primary btn-sm"
+                        href="{% url 'pacientes:paciente_detalle' p.pk %}">
+                            Ver ficha
+                        </a>
+
+                        <a class="btn btn-info btn-sm ms-2"
+                        href="{% url 'usuarios:portal_paciente' p.pk %}">
+                            Portal del paciente
+                        </a>
+                    </div>
                 </li>
             {% endfor %}
         </ul>

@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from pacientes.models import Paciente
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 class PerfilUsuario(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name="perfil")
