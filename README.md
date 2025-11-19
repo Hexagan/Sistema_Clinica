@@ -1,4 +1,4 @@
-El sistema busca gestionar turnos médicos en una clínica y complementar la experiencia del paciente ofreciéndole amenities y servicios adicionales que puede utilizar antes o después de su atención.
-El sistema está pensado para cubrir el proceso completo del paciente, desde la reserva del turno hasta su permanencia en la clínica.
+El sistema está diseñado para gestionar los turnos médicos de una clínica y mejorar la experiencia del paciente, ofreciéndole amenities y servicios adicionales que puede disfrutar antes o después de su consulta. Su objetivo es acompañar todo el recorrido del paciente, desde la reserva del turno hasta su estadía dentro de la clínica.
 
-![DER](DER2.png)
+Diagrama Entidad Relación del proyecto:
+![DER](img/DER2.png)
