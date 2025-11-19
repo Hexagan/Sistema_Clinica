@@ -1,35 +1,45 @@
 {% extends "base.html" %}
+
 {% block title %}Historial de Turnos{% endblock %}
 
 {% block content %}
-<h3 class="mb-4">Historial de Turnos</h3>
+<div class="container py-4">
 
-<table class="table table-bordered">
-    <thead class="table-light">
-        <tr>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Servicio</th>
-            <th>Profesional</th>
-            <th>Estado</th>
-            <th>Piso</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for turno in turnos %}
-        <tr>
-            <td>{{ turno.fecha }}</td>
-            <td>{{ turno.hora }}</td>
-            <td>{{ turno.servicio }}</td>
-            <td>{{ turno.profesional }}</td>
-            <td>{{ turno.estado.descripcion }}</td>
-            <td>{{ turno.piso }}</td>
-            <td>
-                <a href="/turnos/{{ turno.id }}/" class="btn btn-sm btn-outline-primary">Ver</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <h2 class="mb-4">Historial de turnos</h2>
+
+    {% if turnos %}
+    <table class="table table-striped table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Profesional</th>
+                <th>Especialidad</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in turnos %}
+            <tr>
+                <td>{{ t.fecha }}</td>
+                <td>{{ t.hora }}</td>
+                <td>{{ t.profesional.nombre }}</td>
+                <td>{{ t.profesional.especialidad.nombre }}</td>
+                <td>
+                    <a href="{% url 'turnos:ver_turno' t.id %}" class="btn btn-sm btn-outline-primary">
+                        Ver detalle
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+    <div class="alert alert-info">
+        No hay turnos anteriores registrados.
+    </div>
+    {% endif %}
+
+</div>
 {% endblock %}

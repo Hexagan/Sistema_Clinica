@@ -4,16 +4,20 @@ from .models import Turno, Estado
 from profesionales.models import Profesional
 from servicios.models import Servicio
 from datetime import datetime
+from pacientes.models import Paciente
+
 
 @login_required
-def solicitar_turno(request):
+def solicitar_turno(request, paciente_id):
+
+    paciente = get_object_or_404(Paciente, id=paciente_id)
 
     if request.method == "POST":
         profesional = get_object_or_404(Profesional, id=request.POST["profesional"])
         servicio = get_object_or_404(Servicio, id=request.POST["servicio"])
 
         turno = Turno.objects.create(
-            paciente=request.user.paciente,
+            paciente=paciente,
             profesional=profesional,
             servicio=servicio,
             fecha=request.POST["fecha"],
@@ -22,16 +26,17 @@ def solicitar_turno(request):
             estado=Estado.objects.first(),
         )
 
-        return render(request, "turno_exitoso.html", {"turno": turno})
+        return render(request, "turnos/turno_exitoso.html", {"turno": turno})
 
     profesionales = Profesional.objects.all()
     servicios = Servicio.objects.all()
 
-    return render(request, "solicitar_turno.html", {
+    return render(request, "turnos/solicitar_turno.html", {
         "profesionales": profesionales,
-        "servicios": servicios
+        "servicios": servicios,
+        "paciente": paciente,
     })
-
+        
 
 @login_required
 def historial_turnos(request):
@@ -39,7 +44,7 @@ def historial_turnos(request):
         paciente=request.user.paciente
     ).order_by("-fecha", "-hora")
 
-    return render(request, "historial_turnos.html", {"turnos": turnos})
+    return render(request, "turnos/historial_turnos.html", {"turnos": turnos})
 
 
 @login_required
@@ -47,7 +52,7 @@ def ver_turno(request, turno_id):
     turno = get_object_or_404(
         Turno, id=turno_id, paciente=request.user.paciente
     )
-    return render(request, "ver_turno.html", {"turno": turno})
+    return render(request, "turnos/ver_turno.html", {"turno": turno})
 
 @login_required
 def turnos_agendados(request):
@@ -56,4 +61,4 @@ def turnos_agendados(request):
         fecha__gte=datetime.date.today()
     ).order_by("fecha", "hora")
 
-    return render(request, "turnos_agendados.html", {"turnos": turnos})
+    return render(request, "turnos/turnos_agendados.html", {"turnos": turnos})
