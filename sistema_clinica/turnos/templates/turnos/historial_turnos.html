@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Historial de Turnos{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Historial de Turnos</h3>
+
+<table class="table table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Servicio</th>
+            <th>Profesional</th>
+            <th>Estado</th>
+            <th>Piso</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for turno in turnos %}
+        <tr>
+            <td>{{ turno.fecha }}</td>
+            <td>{{ turno.hora }}</td>
+            <td>{{ turno.servicio }}</td>
+            <td>{{ turno.profesional }}</td>
+            <td>{{ turno.estado.descripcion }}</td>
+            <td>{{ turno.piso }}</td>
+            <td>
+                <a href="/turnos/{{ turno.id }}/" class="btn btn-sm btn-outline-primary">Ver</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,41 +1,59 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
-from django.urls import reverse
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import Turno, Estado
-from .forms import SolicitarTurnoForm
-import uuid
+from profesionales.models import Profesional
+from servicios.models import Servicio
+from datetime import datetime
 
-# ----------- Solicitar turno -----------
+@login_required
 def solicitar_turno(request):
 
     if request.method == "POST":
-        form = SolicitarTurnoForm(request.POST)
-        if form.is_valid():
-            turno = form.save(commit=False)
+        profesional = get_object_or_404(Profesional, id=request.POST["profesional"])
+        servicio = get_object_or_404(Servicio, id=request.POST["servicio"])
 
-            # Estado inicial: agendado
-            estado_agendado = Estado.objects.get(descripcion="Agendado")
-            turno.estado = estado_agendado
+        turno = Turno.objects.create(
+            paciente=request.user.paciente,
+            profesional=profesional,
+            servicio=servicio,
+            fecha=request.POST["fecha"],
+            hora=request.POST["hora"],
+            piso=request.POST["piso"],
+            estado=Estado.objects.first(),
+        )
 
-            # Generar QR único
-            turno.qr_code = str(uuid.uuid4())
+        return render(request, "turno_exitoso.html", {"turno": turno})
 
-            turno.save()
+    profesionales = Profesional.objects.all()
+    servicios = Servicio.objects.all()
 
-            return redirect(reverse("turnos:turno_exitoso", args=[turno.id]))
-    else:
-        form = SolicitarTurnoForm()
-
-    return render(request, "turnos/solicitar_turno.html", {"form": form})
-
-
-# ----------- Turno exitoso -----------
-def turno_exitoso(request, turno_id):
-    turno = get_object_or_404(Turno, id=turno_id)
-    return render(request, "turnos/turno_exitoso.html", {"turno": turno})
+    return render(request, "solicitar_turno.html", {
+        "profesionales": profesionales,
+        "servicios": servicios
+    })
 
 
-# ----------- Ver turno -----------
+@login_required
+def historial_turnos(request):
+    turnos = Turno.objects.filter(
+        paciente=request.user.paciente
+    ).order_by("-fecha", "-hora")
+
+    return render(request, "historial_turnos.html", {"turnos": turnos})
+
+
+@login_required
 def ver_turno(request, turno_id):
-    turno = get_object_or_404(Turno, id=turno_id)
-    return render(request, "turnos/ver_turno.html", {"turno": turno})
+    turno = get_object_or_404(
+        Turno, id=turno_id, paciente=request.user.paciente
+    )
+    return render(request, "ver_turno.html", {"turno": turno})
+
+@login_required
+def turnos_agendados(request):
+    turnos = Turno.objects.filter(
+        paciente=request.user.paciente,
+        fecha__gte=datetime.date.today()
+    ).order_by("fecha", "hora")
+
+    return render(request, "turnos_agendados.html", {"turnos": turnos})

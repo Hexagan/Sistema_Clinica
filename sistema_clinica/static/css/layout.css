@@ -1,0 +1,81 @@
+body {
+    background-color: #f2f4f7;
+    margin: 0;
+}
+
+/* ICONOS BLANCOS */
+.material-symbols-outlined {
+    font-size: 20px;
+    color: white;
+}
+
+/* TOPBAR */
+.topbar {
+    background-color: #0097c4;
+    height: 60px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+/* SIDEBAR */
+.sidebar {
+    background-color: #0b5177;
+    width: 220px;
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    padding-top: 15px;
+}
+
+/* LINKS SIDEBAR */
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar .text {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.sidebar a:hover {
+    background-color: #0a4a6b;
+}
+
+/* SUBMENÚ */
+.submenu a {
+    padding-left: 35px;
+}
+
+/* CONTENIDO PRINCIPAL */
+.content {
+    margin-left: 220px;
+    margin-top: 60px;
+    padding: 20px;
+}
+
+/* TOPBAR LINK STYLE */
+.topbar-center {
+    font-size: 1.5rem;
+    font-weight: 600;
+    position: relative;
+}
+
+.topbar-link {
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.topbar-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}

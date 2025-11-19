@@ -28,7 +28,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('pacientes/', include('pacientes.urls')),
     path('profesionales/', include('profesionales.urls')),
-    path('turnos/', include('turnos.urls')),
+    path('turnos/', include('turnos.urls', namespace="turnos")),
     path('amenities/', include('amenities.urls')),
     path('servicios/', include('servicios.urls')),
     path('usuarios/', include('usuarios.urls')),

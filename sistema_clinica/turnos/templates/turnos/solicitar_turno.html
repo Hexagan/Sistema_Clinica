@@ -2,37 +2,32 @@
 {% block title %}Solicitar Turno{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
+<h3 class="mb-4">Solicitar Turno</h3>
 
-        <div class="card shadow">
-            <div class="card-header bg-success text-white text-center">
-                <h4>Solicitar Turno</h4>
-            </div>
+<form method="post">
+    {% csrf_token %}
 
-            <div class="card-body">
+    <label class="form-label">Servicio</label>
+    <select name="servicio" class="form-select" required>
+        <option>Clínica Médica</option>
+        <option>Cardiología</option>
+        <option>Nutrición</option>
+        <option>Odontología</option>
+    </select>
 
-                <form method="POST">
-                    {% csrf_token %}
+    <label class="form-label mt-3">Profesional</label>
+    <input type="text" name="profesional" class="form-control" required>
 
-                    {{ form.non_field_errors }}
+    <label class="form-label mt-3">Fecha</label>
+    <input type="date" name="fecha" class="form-control" required>
 
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            <div class="text-danger small">{{ field.errors }}</div>
-                        </div>
-                    {% endfor %}
+    <label class="form-label mt-3">Hora</label>
+    <input type="time" name="hora" class="form-control" required>
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-success">Solicitar turno</button>
-                    </div>
-                </form>
+    <label class="form-label mt-3">Piso</label>
+    <input type="text" name="piso" class="form-control" required>
 
-            </div>
-        </div>
+    <button class="btn btn-primary mt-4">Reservar Turno</button>
+</form>
 
-    </div>
-</div>
 {% endblock %}
