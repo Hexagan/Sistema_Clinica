@@ -1,9 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Turno, Estado
+from collections import defaultdict
 from profesionales.models import Especialidad, Profesional
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.contrib import messages
+from django.utils import timezone
+from datetime import datetime, time
 import json
 
 # -----------------------------
@@ -55,28 +58,32 @@ def turnos_disponibles(request):
     especialidad = request.GET.get("especialidad")
     profesional_id = request.GET.get("profesional")
     modo = request.GET.get("modo")
-    hora_desde = request.GET.get("hora_desde")
+    hora_desde = request.GET.get("hora_desdesde")
     hora_hasta = request.GET.get("hora_hasta")
     dias_preferidos = request.GET.getlist("dias[]")
     paciente_id = request.GET.get("paciente_id")
 
-    # Estado PENDIENTE = disponible
     estado_disponible = Estado.objects.get(pk=1)
 
+    # ==========================================
+    # 1) CONSULTA BASE
+    # ==========================================
     turnos = Turno.objects.select_related(
-        'profesional',
-        'profesional__especialidad',
-        'estado'
+        "profesional",
+        "profesional__especialidad",
+        "estado"
     ).filter(estado=estado_disponible)
 
-    # Filtros directos
+    # ==========================================
+    # 2) FILTROS
+    # ==========================================
     if especialidad:
         turnos = turnos.filter(profesional__especialidad_id=especialidad)
 
     if profesional_id:
         turnos = turnos.filter(profesional_id=profesional_id)
 
-    if modo:
+    if modo and modo != "LIBRE":
         turnos = turnos.filter(profesional__tipo_consulta=modo)
 
     if hora_desde:
@@ -85,22 +92,40 @@ def turnos_disponibles(request):
     if hora_hasta:
         turnos = turnos.filter(hora__lte=hora_hasta)
 
-    # Filtrar por días de semana
     if dias_preferidos:
         turnos = [
             t for t in turnos
             if any(d in t.profesional.dias_como_lista() for d in dias_preferidos)
         ]
 
-    # ordenar
+    # ==========================================
+    # 3) ORDEN
+    # ==========================================
     turnos = sorted(turnos, key=lambda t: (t.fecha, t.hora))
 
-    return render(request, "turnos/turnos_disponibles.html", {
-        "turnos": turnos,
-        "query": request.GET,
-        "paciente_id": paciente_id,
-    })
+    # ==========================================
+    # 4) AGRUPAR POR FECHA
+    # ==========================================
+    turnos_por_dia = defaultdict(list)
 
+    for turno in turnos:
+        turnos_por_dia[turno.fecha].append(turno)
+
+    fechas_ordenadas = sorted(turnos_por_dia.keys())
+
+    # ==========================================
+    # 5) ENVIAR AL TEMPLATE
+    # ==========================================
+    print("FECHAS ORDENADAS:", fechas_ordenadas)
+    for f in fechas_ordenadas:
+        print("FECHA", f, " → CANT:", len(turnos_por_dia[f]))
+
+    return render(request, "turnos/turnos_disponibles.html", {
+        "paciente_id": paciente_id,
+        "fechas_ordenadas": fechas_ordenadas,
+        "turnos_por_dia": turnos_por_dia,
+        "query": request.GET,
+    })
 
 # -----------------------------
 # RESERVAR TURNO
@@ -152,11 +177,31 @@ def turno_exitoso(request, paciente_id, turno_id):
     return render(request, "turnos/turno_exitoso.html", {"paciente": paciente, "turno": turno})
 
 
-def historial_turnos(request, paciente_id):
+def turnos_historial(request, paciente_id):
     perfil = request.user.perfil
     paciente = perfil.pacientes.get(pk=paciente_id)
-    turnos = Turno.objects.filter(paciente=paciente).order_by("-fecha")
-    return render(request, "turnos/historial_turnos.html", {"paciente": paciente, "turnos": turnos})
+
+    ahora = timezone.localtime()
+
+    turnos = Turno.objects.filter(paciente=paciente)
+
+    historial = []
+    for t in turnos:
+        dt = datetime.combine(t.fecha, t.hora)
+        dt = timezone.make_aware(dt)
+
+        if t.estado.pk in (3, 5):  # Atendido o Cancelado
+            historial.append(t)
+        elif t.estado.pk == 2 and dt < ahora:
+            # Confirmado pero ya pasó la fecha
+            historial.append(t)
+
+    historial_ordenado = sorted(historial, key=lambda t: (t.fecha, t.hora), reverse=True)
+
+    return render(request, "turnos/turnos_historial.html", {
+        "paciente": paciente,
+        "turnos": historial_ordenado
+    })
 
 
 def ver_turno(request, paciente_id, turno_id):
@@ -164,3 +209,29 @@ def ver_turno(request, paciente_id, turno_id):
     paciente = perfil.pacientes.get(pk=paciente_id)
     turno = get_object_or_404(Turno, id=turno_id, paciente=paciente)
     return render(request, "turnos/ver_turno.html", {"paciente": paciente, "turno": turno})
+
+from django.utils.timezone import localdate
+
+def turnos_agendados(request, paciente_id):
+    perfil = request.user.perfil
+    paciente = perfil.pacientes.get(pk=paciente_id)
+
+    ahora = timezone.localtime()
+
+    # Turnos cuyo estado es Confirmado y cuya fecha+hora es futura
+    turnos = Turno.objects.filter(
+        paciente=paciente,
+        estado__pk=2  # Confirmado
+    )
+
+    turnos_futuros = []
+    for t in turnos:
+        dt = datetime.combine(t.fecha, t.hora)
+        dt = timezone.make_aware(dt)
+        if dt >= ahora:
+            turnos_futuros.append(t)
+
+    return render(request, "turnos/turnos_agendados.html", {
+        "paciente": paciente,
+        "turnos": turnos_futuros
+    })

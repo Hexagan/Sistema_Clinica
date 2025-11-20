@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}Turnos Agendados{% endblock %}
+{% block title %}Historial de Turnos{% endblock %}
 
 {% block content %}
-<h2>Turnos Agendados</h2>
+<h2>Historial de Turnos</h2>
 
 {% if turnos %}
     <ul class="list-group">
@@ -11,12 +11,12 @@
         <li class="list-group-item">
             <strong>{{ t.fecha|date:"d/m/Y" }} - {{ t.hora|time:"H:i" }}</strong><br>
             Profesional: {{ t.profesional.nombre }}<br>
-            Especialidad: {{ t.profesional.especialidad.nombre }}
+            Estado: {{ t.estado.descripcion }}
         </li>
     {% endfor %}
     </ul>
 {% else %}
-    <div class="alert alert-info">No tenés turnos futuros confirmados.</div>
+    <div class="alert alert-info">No hay turnos históricos registrados.</div>
 {% endif %}
 
 {% endblock %}

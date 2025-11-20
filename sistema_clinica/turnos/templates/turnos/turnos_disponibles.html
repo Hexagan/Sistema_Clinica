@@ -1,84 +1,173 @@
 {% extends "base.html" %}
+{% load tz %}
+{% load turnos_extras %}
+
 {% block title %}Turnos disponibles{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* Tabs */
+.nav-pills .nav-link {
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-weight: 600;
+}
+.nav-pills .nav-link.active {
+    background-color: #0d6efd;
+}
+
+/* Cards */
+.card-turno {
+    cursor: pointer;
+    border-left: 5px solid transparent;
+}
+
+.card-turno.selected {
+    border-left: 5px solid #0d6efd;
+    background: #e9f2ff;
+}
+
+/* Columnas */
+.col-radio {
+    width: 45px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.col-fecha {
+    min-width: 170px;
+}
+
+.col-prof {
+    min-width: 180px;
+    display:flex;
+    flex-direction:column;
+    text-align:left;
+}
+
+.col-esp {
+    min-width: 180px;
+    display:flex;
+    flex-direction:column;
+    text-align:left;
+}
+
+/* Centrado solo en la segunda línea */
+.text-small-center {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-align: center;
+    width: 100%;
+}
+
+.fecha {
+    font-weight: 600;
+}
+
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container py-3">
-    <h2>Turnos disponibles</h2>
+
+    <h2 class="mb-3">Turnos disponibles</h2>
+
+    <!-- ============================= -->
+    <!-- TABS POR DÍA                  -->
+    <!-- ============================= -->
+    <ul class="nav nav-pills mb-3" id="diaTabs" role="tablist">
+        {% for fecha in fechas_ordenadas %}
+            <li class="nav-item" role="presentation">
+            <button
+                class="nav-link {% if forloop.first %}active{% endif %}"
+                id="tab-{{ forloop.counter }}"
+                data-bs-toggle="pill"
+                data-bs-target="#dia-{{ forloop.counter }}"
+                type="button"
+                role="tab">
+                {{ fecha|date:"D d/m"|capfirst }}
+            </button>
+            </li>
+        {% endfor %}
+    </ul>
 
     <form method="POST" action="{% url 'turnos:reservar_turno' %}" id="reservarForm">
         {% csrf_token %}
         <input type="hidden" name="paciente_id" value="{{ paciente_id }}">
 
-        <div class="row gy-2">
+        <div class="tab-content">
 
-            {% if turnos %}
-                {% for turno in turnos %}
-                <div class="col-12">
-                    <label class="card card-turno" for="t-{{ turno.id }}">
-                        <div class="card-body d-flex align-items-center gap-4">
+            {% for fecha in fechas_ordenadas %}
+            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="dia-{{ forloop.counter }}">
 
-                            <div class="radio-col">
-                                <input type="radio" name="turno_id" value="{{ turno.id }}">
-                            </div>
-
-                            <div class="info-col flex-fill">
-                                <div class="fecha">{{ turno.fecha|date:"l d - F - Y" }}</div>
-                                <div class="hora"><strong>{{ turno.hora|time:"H:i" }}</strong> <small>Horario</small></div>
-                            </div>
-
-                            <div class="prof-col flex-fill">
-                                <strong>{{ turno.profesional }}</strong>
-                                <div class="detalle">{{ turno.profesional.consultorio }}</div>
-                            </div>
-
-                            <div class="esp-col flex-fill">
-                                <strong>{{ turno.profesional.especialidad.nombre }}</strong>
-                                <div class="detalle">{{ turno.profesional.tipo_consulta }}</div>
-                            </div>
-
-                        </div>
-                    </label>
-                </div>
+                {% for turno in turnos_por_dia|get_item:fecha %}
+                    {% empty %}
+                    <div class="alert alert-info">No hay turnos disponibles este día.</div>
                 {% endfor %}
-            {% else %}
-                <div class="col-12">
-                    <div class="alert alert-info">No hay turnos disponibles que coincidan con la búsqueda.</div>
-                </div>
-            {% endif %}
-        </div>
 
-        <div class="mt-3 d-flex justify-content-between align-items-center">
-            <div class="small text-muted">Imagen de referencia:</div>
-            <img src="/mnt/data/7069d734-e4e9-4de7-ba6c-3f9dc4d695fc.png" alt="referencia" style="height:48px;">
-            <div>
-                <button type="submit" class="btn btn-success">Reservar turno seleccionado</button>
+                {% for turno in turnos_por_dia|get_item:fecha %}
+                <label class="card card-turno mb-2">
+                    <div class="card-body d-flex flex-row align-items-center">
+                        <!-- RADIO -->
+                        <div class="col-radio">
+                            <input type="radio" name="turno_id" value="{{ turno.id }}">
+                        </div>
+
+                        <!-- FECHA + HORA -->
+                        <div class="col-fecha d-flex flex-column">
+                            <span class="fecha">{{ turno.fecha|date:"l d \\d\\e F \\d\\e Y" }}</span>
+                            <span class="text-small-center">{{ turno.hora|time:"H:i" }}</span>
+                        </div>
+
+                        <!-- PROFESIONAL -->
+                        <div class="col-prof">
+                            <strong>{{ turno.profesional.nombre }}</strong>
+                            <span class="text-small-center">Consultorio {{ turno.profesional.consultorio }}</span>
+                        </div>
+
+                        <!-- ESPECIALIDAD -->
+                        <div class="col-esp">
+                            <strong>{{ turno.profesional.especialidad.nombre }}</strong>
+                            <span class="text-small-center">{{ turno.profesional.get_modalidad_display }}</span>
+                        </div>
+
+                        <div class="col-accion">
+                            <button type="submit" class="btn btn-success reservar-btn">
+                                Reservar
+                            </button>
+                        </div>
+                    </div>
+                </label>
+                {% endfor %}
             </div>
+            {% endfor %}
+
         </div>
     </form>
 </div>
 
+
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-    // Al hacer click en la card, activa el radio (UX)
-    document.querySelectorAll('.card-turno').forEach(function(card){
-        card.addEventListener('click', function(e){
-            // evitar deseleccionar si se hace click directo en input
-            const radio = card.querySelector('input[type=radio]');
-            if(radio){
-                radio.checked = true;
-                document.querySelectorAll('.card-turno').forEach(c=>c.classList.remove('selected'));
-                card.classList.add('selected');
-            }
+// UX: seleccionar card hace check al radio
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.card-turno').forEach(card => {
+        card.addEventListener('click', () => {
+            card.querySelector('input[type="radio"]').checked = true;
+            document.querySelectorAll('.card-turno').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
         });
     });
+});
 
-    // comprobar que haya seleccionado un turno antes de enviar
-    document.getElementById('reservarForm').addEventListener('submit', function(e){
-        if(!document.querySelector('input[name="turno_id"]:checked')){
-            e.preventDefault();
-            alert("Por favor seleccioná un turno antes de reservar.");
-        }
-    });
+// Evitar enviar sin turno
+document.getElementById("reservarForm").addEventListener("submit", e => {
+    if (!document.querySelector("input[name='turno_id']:checked")) {
+        e.preventDefault();
+        alert("Seleccioná un turno para continuar.");
+    }
 });
 </script>
+
 {% endblock %}

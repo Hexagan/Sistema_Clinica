@@ -24,10 +24,10 @@
     </div>
 
     <div class="mt-4 text-center">
-        <a href="{% url 'turnos:historial' %}" class="btn btn-primary">
+        <a href="{% url 'turnos:turnos_historial' paciente.id %}" class="btn btn-primary">
             Ver historial de turnos
         </a>
-        <a href="{% url 'turnos:solicitar_turno' %}" class="btn btn-secondary">
+        <a href="{% url 'turnos:solicitar_turno' paciente.id %}" class="btn btn-secondary">
             Solicitar otro turno
         </a>
     </div>

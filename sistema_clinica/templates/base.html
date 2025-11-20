@@ -109,9 +109,9 @@
             </a>
 
             {% if paciente_id %}
-                <a href="{% url 'turnos:historial_turnos' paciente_id %}">
+                <a href="{% url 'turnos:turnos_historial' paciente_id %}">
             {% elif paciente %}
-                <a href="{% url 'turnos:historial_turnos' paciente.id %}">
+                <a href="{% url 'turnos:turnos_historial' paciente.id %}">
             {% else %}
                 <a href="#">
             {% endif %}

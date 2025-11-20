@@ -153,28 +153,44 @@ body {
     color: #6c757d;
 }
 
-.card-turno {
-    cursor: pointer;
-}
-
 .card-turno .card-body {
-    display: flex !important;
-    flex-direction: row !important;
+    display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 20px;
 }
 
-.radio-col {
-    width: 40px;
+/* Columnas reales */
+.col-radio { 
+    width: 50px;
     display: flex;
-    align-items: center;
     justify-content: center;
 }
 
-.info-col, .prof-col, .esp-col {
+.col-prof,
+.col-esp,
+.col-fecha {
     flex: 1;
     display: flex;
     flex-direction: column;
+    align-items: center;   /* CENTRA horizontalmente ambas filas */
+    text-align: center;    /* Para el texto */
+}
+
+/* Centrado SOLO en las segundas líneas */
+.consultorio,
+.modalidad {
+    width: 100%;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Nombre y especialidad alineados a la izquierda */
+.nombre-prof,
+.esp-nombre {
+    font-weight: 600;
+    text-align: left;
 }
 
 /* Fecha más grande */
@@ -182,3 +198,24 @@ body {
     font-weight: 600;
 }
 
+/* contenedor del botón */
+.col-accion {
+    margin-left: auto;              /* empuja el botón a la derecha */
+    display: flex;
+    align-items: center;            /* centra verticalmente */
+}
+
+/* botón oculto por defecto */
+.reservar-btn {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(10px);
+    transition: all 0.25s ease;
+}
+
+/* cuando la card está seleccionada */
+.card-turno.selected .reservar-btn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+}
