@@ -1,19 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Turnos disponibles{% endblock %}
 
-{% block extra_css %}
-<style>
-.card-turno { cursor:pointer; }
-.card-turno .selected { border: 2px solid #0d6efd; }
-.day-long { font-weight:600; }
-.small-muted { font-size:0.85rem; color:#6c757d; }
-.radio-wrapper { width:48px; text-align:center; }
-@media (max-width:768px) {
-  .radio-wrapper { display:none; }
-}
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="container py-3">
     <h2>Turnos disponibles</h2>
@@ -27,38 +14,28 @@
             {% if turnos %}
                 {% for turno in turnos %}
                 <div class="col-12">
-                    <label class="card card-body d-flex align-items-center gap-3 card-turno" for="t-{{ turno.id }}">
-                        <div class="radio-wrapper">
-                            <input type="radio" name="turno_id" id="t-{{ turno.id }}" value="{{ turno.id }}">
-                        </div>
+                    <label class="card card-turno" for="t-{{ turno.id }}">
+                        <div class="card-body d-flex align-items-center gap-4">
 
-                        <div class="flex-grow-1 d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-3">
-                                <div>
-                                    <div class="day-long">{{ turno.fecha|date:"l d \\de F \\de Y" }}</div>
-                                    <div class="small-muted">{{ turno.fecha|date:"d/m/Y" }}</div>
-                                </div>
-
-                                <div style="min-width:90px;">
-                                    <strong>{{ turno.hora|time:"H:i" }}</strong>
-                                    <div class="small-muted">Horario</div>
-                                </div>
-
-                                <div style="min-width:240px;">
-                                    <div><strong>{{ turno.profesional.nombre }}</strong></div>
-                                    <div class="small-muted">{{ turno.profesional.matricula }}</div>
-                                </div>
-
-                                <div style="min-width:180px;">
-                                    <div>{{ turno.profesional.especialidad.nombre }}</div>
-                                    <div class="small-muted">{{ turno.profesional.tipo_consulta }}</div>
-                                </div>
+                            <div class="radio-col">
+                                <input type="radio" name="turno_id" value="{{ turno.id }}">
                             </div>
 
-                            <div class="text-end">
-                                <div class="small-muted">Tipo</div>
-                                <div><strong>{{ turno.servicio.nombre }}</strong></div>
+                            <div class="info-col flex-fill">
+                                <div class="fecha">{{ turno.fecha|date:"l d - F - Y" }}</div>
+                                <div class="hora"><strong>{{ turno.hora|time:"H:i" }}</strong> <small>Horario</small></div>
                             </div>
+
+                            <div class="prof-col flex-fill">
+                                <strong>{{ turno.profesional }}</strong>
+                                <div class="detalle">{{ turno.profesional.consultorio }}</div>
+                            </div>
+
+                            <div class="esp-col flex-fill">
+                                <strong>{{ turno.profesional.especialidad.nombre }}</strong>
+                                <div class="detalle">{{ turno.profesional.tipo_consulta }}</div>
+                            </div>
+
                         </div>
                     </label>
                 </div>
