@@ -91,3 +91,43 @@ def portal_paciente(request, paciente_id):
     return render(request, "pacientes/portal_paciente.html", {
         "paciente": paciente
     })
+
+@login_required
+def buscar_turnos(request):
+    especialidades = Especialidad.objects.all()
+    profesionales = Profesional.objects.all()
+
+    return render(request, "buscar_turnos.html", {
+        "especialidades": especialidades,
+        "profesionales": profesionales,
+    })
+
+@login_required
+def resultados_turnos(request):
+    especialidad_id = request.GET.get("especialidad")
+    profesional_id = request.GET.get("profesional")
+    tipo = request.GET.get("tipo")
+    fecha = request.GET.get("fecha")
+
+    profesionales = Profesional.objects.filter(especialidad_id=especialidad_id)
+
+    if profesional_id:
+        profesionales = profesionales.filter(id=profesional_id)
+
+    if tipo != "AMBOS":
+        profesionales = profesionales.filter(tipo_consulta=tipo)
+
+    resultados = []
+
+    for prof in profesionales:
+        horarios_disponibles = obtener_disponibilidad(prof, fecha)
+        for h in horarios_disponibles:
+            resultados.append({
+                "fecha": fecha,
+                "hora": h,
+                "profesional": prof,
+                "especialidad": prof.especialidad,
+                "tipo": prof.tipo_consulta
+            })
+
+    return render(request, "lista_turnos.html", {"resultados": resultados})

@@ -30,7 +30,6 @@ urlpatterns = [
     path('profesionales/', include('profesionales.urls')),
     path('turnos/', include('turnos.urls', namespace="turnos")),
     path('amenities/', include('amenities.urls')),
-    path('servicios/', include('servicios.urls')),
     path('usuarios/', include('usuarios.urls')),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('', home_redirect),

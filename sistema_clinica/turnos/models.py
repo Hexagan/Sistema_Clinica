@@ -1,11 +1,17 @@
 from django.db import models
 from pacientes.models import Paciente
-from profesionales.models import Profesional
-from servicios.models import Servicio
+from profesionales.models import Profesional, Servicio
 
 
 class Estado(models.Model):
     descripcion = models.CharField(max_length=50)
+    
+    class Meta:
+        verbose_name = "Estado"
+        verbose_name_plural = "Estados"
+
+    def __str__(self):
+        return self.descripcion
 
 
 class Turno(models.Model):
@@ -20,4 +26,3 @@ class Turno(models.Model):
     qr_code = models.CharField(max_length=200, blank=True)
     check_in = models.DateTimeField(null=True, blank=True)
     observaciones = models.TextField(blank=True, null=True)
-

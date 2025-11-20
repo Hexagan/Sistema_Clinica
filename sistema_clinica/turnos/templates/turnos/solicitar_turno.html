@@ -3,50 +3,84 @@
 {% block title %}Solicitar Turno{% endblock %}
 
 {% block content %}
-<div class="container py-4">
 
-    <h2 class="mb-4">Reservar un turno</h2>
+<h2>Solicitar Turno</h2>
 
-    <form method="post" class="card p-4 shadow-sm">
-        {% csrf_token %}
+<form method="GET" action="/turnos/disponibles/">
 
-        <!-- Profesional -->
-        <div class="mb-3">
-            <label class="form-label">Profesional</label>
-            <select name="profesional" class="form-select" required>
-                <option value="">Seleccione…</option>
-                {% for prof in profesionales %}
-                <option value="{{ prof.id }}">{{ prof.nombre }}</option>
-                {% endfor %}
-            </select>
-        </div>
+    <!-- ESPECIALIDAD -->
+    <div class="mb-3">
+        <label class="form-label">Especialidad</label>
+        <select id="especialidad-select" class="form-select">
+            <option value="">Seleccione una especialidad…</option>
+            {% for e in especialidades %}
+                <option value="{{ e.id }}">{{ e.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-        <!-- Servicio -->
-        <div class="mb-3">
-            <label class="form-label">Servicio</label>
-            <select name="servicio" class="form-select" required>
-                <option value="">Seleccione…</option>
-                {% for srv in servicios %}
-                <option value="{{ srv.id }}">{{ srv.nombre }}</option>
-                {% endfor %}
-            </select>
-        </div>
+    <!-- PROFESIONAL -->
+    <div class="mb-3">
+        <label class="form-label">Profesional</label>
+        <select id="profesional-select" name="profesional" class="form-select" disabled>
+            <option value="">Cualquiera</option>
+            {% for p in profesionales %}
+                <option
+                    value="{{ p.id }}"
+                    data-especialidad="{{ p.especialidad.id }}"
+                >{{ p.apellido }} {{ p.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-        <!-- Fecha -->
-        <div class="mb-3">
-            <label class="form-label">Fecha</label>
-            <input type="date" name="fecha" class="form-control" required>
-        </div>
+    <!-- Modalidad -->
+    <div class="mb-3">
+        <label>Modalidad:</label>
+        <select name="modo" class="form-select">
+            <option value="PRES">Presencial</option>
+            <option value="TELE">Virtual</option>
+        </select>
+    </div>
 
-        <!-- Hora -->
-        <div class="mb-3">
-            <label class="form-label">Hora</label>
-            <input type="time" name="hora" class="form-control" required>
-        </div>
+    <button class="btn btn-primary mt-3" type="submit">Buscar Turnos</button>
+</form>
 
-        <button type="submit" class="btn btn-primary mt-3">
-            Reservar turno
-        </button>
-    </form>
-</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const espSelect = document.getElementById("especialidad-select");
+    const profSelect = document.getElementById("profesional-select");
+
+    // Guardamos TODAS las opciones originales una sola vez
+    const opcionesOriginales = Array.from(profSelect.options);
+
+    espSelect.addEventListener("change", () => {
+
+        const espId = espSelect.value;
+
+        // limpiamos profesionales
+        profSelect.innerHTML = "";
+
+        // siempre agregamos "Cualquiera"
+        const opcionCualquiera = opcionesOriginales[0].cloneNode(true);
+        profSelect.appendChild(opcionCualquiera);
+
+        if (!espId) {
+            profSelect.disabled = true;
+            return;
+        }
+
+        profSelect.disabled = false;
+
+        opcionesOriginales.forEach(opt => {
+            if (!opt.dataset.especialidad) return;  // saltar "Cualquiera"
+
+            if (opt.dataset.especialidad === espId) {
+                profSelect.appendChild(opt.cloneNode(true));
+            }
+        });
+    });
+});
+</script>
+
 {% endblock %}
