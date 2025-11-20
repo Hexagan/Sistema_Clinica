@@ -1,0 +1,45 @@
+<h1>{{ profesional.nombre }}</h1>
+<h3>Especialidad: {{ profesional.especialidad.nombre }}</h3>
+
+<div style="margin-top:20px; padding:15px; border:1px solid #eee; border-radius:8px;">
+    <h4>Disponibilidad</h4>
+
+    <!-- Horario -->
+    {% if profesional.horario_inicio and profesional.horario_fin %}
+        <p><strong>Horario:</strong> 
+            {{ profesional.horario_inicio|time:"H:i" }} – {{ profesional.horario_fin|time:"H:i" }}
+        </p>
+    {% else %}
+        <p><strong>Horario:</strong> No especificado</p>
+    {% endif %}
+
+    <!-- Días disponibles -->
+    <p><strong>Días:</strong>
+        {% if profesional.dias_disponibles %}
+            {{ profesional.dias_disponibles }}
+        {% else %}
+            No especificados
+        {% endif %}
+    </p>
+
+    <!-- Disponibilidad adicional (texto libre) -->
+    {% if profesional.disponibilidad %}
+        <p><strong>Notas adicionales:</strong> {{ profesional.disponibilidad }}</p>
+    {% endif %}
+
+    <!-- Consultorio -->
+    {% if profesional.consultorio %}
+        <p><strong>Consultorio:</strong> {{ profesional.consultorio }}</p>
+    {% endif %}
+
+    <!-- Tipo de atención -->
+    <p><strong>Tipo de consulta:</strong> 
+        {{ profesional.get_tipo_consulta_display }}
+    </p>
+
+    <!-- Servicios -->
+    <p><strong>Servicios:</strong>
+        {% for s in profesional.servicios.all %}
+            {{ s.nombre }}{% if not forloop.last %}, {% endif %}
+        {% empty %}
+            No tiene servi

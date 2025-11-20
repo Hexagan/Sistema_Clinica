@@ -12,11 +12,9 @@ class TurnoAdmin(admin.ModelAdmin):
         "id",
         "paciente",
         "profesional",
-        "servicio",
         "estado",
         "fecha",
         "hora",
-        "piso",
     )
     search_fields = (
         "paciente__nombre",

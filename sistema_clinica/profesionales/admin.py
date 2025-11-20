@@ -13,7 +13,7 @@ class ServicioAdmin(admin.ModelAdmin):
 
 @admin.register(Profesional)
 class ProfesionalAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "email", "matricula", "estado", "especialidad", "mostrar_servicios")
+    list_display = ("nombre", "email", "matricula", "estado", "especialidad", "mostrar_servicios", "dias_disponibles", "horario_inicio", "horario_fin", "tipo_consulta", "consultorio", "piso")
     list_filter = ("estado", "especialidad", "servicios")
     search_fields = ("nombre", "email", "matricula")
     filter_horizontal = ("servicios",)

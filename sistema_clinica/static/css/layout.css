@@ -86,3 +86,46 @@ body {
     border-color: #0d6efd !important;
     box-shadow: 0 0 0 0.2rem rgba(13,110,253,0.25) !important;
 }
+
+.day-chip {
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 6px 14px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+    transition: 0.2s;
+    background: #f8f9fa;
+}
+
+.day-chip:hover {
+    background: #e9ecef;
+}
+
+.day-chip input {
+    display: none;
+}
+
+.day-chip input:checked + * {
+    /* ignorado en HTML estándar, lo corregimos abajo */
+}
+
+.day-chip input:checked ~ span {
+    font-weight: bold;
+}
+
+.day-chip input:checked {
+    /* fallback */
+}
+
+.day-chip input:checked + label {
+    background: #0d6efd;
+    color: white;
+}
+
+/* La forma correcta: usar :has() si el navegador lo soporta */
+.day-chip:has(input:checked) {
+    background: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}

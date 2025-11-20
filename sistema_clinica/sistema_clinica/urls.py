@@ -31,7 +31,8 @@ urlpatterns = [
     path('turnos/', include('turnos.urls', namespace="turnos")),
     path('amenities/', include('amenities.urls')),
     path('usuarios/', include('usuarios.urls')),
-    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('logout/', LogoutView.as_view(next_page='usuarios:login'), name='logout'),
+
     path('', home_redirect),
 ]
 

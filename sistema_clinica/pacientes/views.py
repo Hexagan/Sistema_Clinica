@@ -14,8 +14,10 @@ def portal_paciente(request, paciente_id):
         "usuario": usuario,
         "pacientes": perfil.pacientes.all(),
         "paciente_seleccionado": paciente_seleccionado,
+        "paciente": paciente_seleccionado,
         "especialidades": Especialidad.objects.all(),
         "profesionales": Profesional.objects.all(),
+        "paciente_id": paciente_id,
     })
 
 @login_required
@@ -85,12 +87,6 @@ def lista_pacientes(request):
 
 def cambiar_paciente(request, paciente_id):
     return redirect("usuarios:portal_paciente", paciente_id=paciente_id)
-
-def portal_paciente(request, paciente_id):
-    paciente = Paciente.objects.get(pk=paciente_id)
-    return render(request, "pacientes/portal_paciente.html", {
-        "paciente": paciente
-    })
 
 @login_required
 def buscar_turnos(request):

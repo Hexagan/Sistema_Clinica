@@ -6,12 +6,14 @@
 
 <h2>Solicitar Turno</h2>
 
-<form method="GET" action="/turnos/disponibles/">
+<form method="GET" action="{% url 'turnos:turnos_disponibles' %}">
+    <input type="hidden" name="paciente_id" value="{{ paciente.id }}">
+    
 
     <!-- ESPECIALIDAD -->
     <div class="mb-3">
         <label class="form-label">Especialidad</label>
-        <select id="especialidad-select" class="form-select">
+        <select id="especialidad-select" name="especialidad" class="form-select">
             <option value="">Seleccione una especialidad…</option>
             {% for e in especialidades %}
                 <option value="{{ e.id }}">{{ e.nombre }}</option>
@@ -28,7 +30,7 @@
                 <option
                     value="{{ p.id }}"
                     data-especialidad="{{ p.especialidad.id }}"
-                >{{ p.apellido }} {{ p.nombre }}</option>
+                >{{ p.nombre }}</option>
             {% endfor %}
         </select>
     </div>
@@ -36,51 +38,164 @@
     <!-- Modalidad -->
     <div class="mb-3">
         <label>Modalidad:</label>
-        <select name="modo" class="form-select">
+        <select id="modalidad" name="modo" class="form-select">
             <option value="PRES">Presencial</option>
             <option value="TELE">Virtual</option>
         </select>
+    </div>
+
+    <!-- BLOQUE DE PREFERENCIA HORARIA + DÍAS -->
+    <div class="mb-3">
+        <label class="form-label">Preferencias (opcional)</label>
+
+        <div class="d-flex flex-wrap align-items-start gap-4">
+
+            <!-- HORARIOS -->
+            <div class="d-flex gap-3">
+                <div>
+                    <small>Desde:</small>
+                    <input type="time" id="hora_desde" name="hora_desde" class="form-control">
+                </div>
+
+                <div>
+                    <small>Hasta:</small>
+                    <input type="time" id="hora_hasta" name="hora_hasta" class="form-control">
+                </div>
+            </div>
+
+            <!-- DÍAS PREFERIDOS -->
+            <div>
+                <small>Días preferidos:</small>
+                <div class="d-flex gap-2 mt-1 flex-wrap">
+
+                    {% for clave, dia in dias_semana %}
+                    <label class="day-chip">
+                        <input type="checkbox" name="dias[]" value="{{ clave }}">
+                        {{ dia }}
+                    </label>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+        </div>
+
+        <small class="text-muted">
+            Esto es opcional. Si no seleccionás nada, se muestran todos los turnos disponibles.
+        </small>
     </div>
 
     <button class="btn btn-primary mt-3" type="submit">Buscar Turnos</button>
 </form>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    console.log(JSON.parse('{{ profesionales_json|escapejs }}'));
+    document.addEventListener("DOMContentLoaded", function () {
 
+    const profesionales = JSON.parse('{{ profesionales_json|escapejs }}');
     const espSelect = document.getElementById("especialidad-select");
     const profSelect = document.getElementById("profesional-select");
+    const modSelect = document.getElementById("modalidad");
 
-    // Guardamos TODAS las opciones originales una sola vez
-    const opcionesOriginales = Array.from(profSelect.options);
+    // Modalidades base
+    const modalidadesBase = `
+        <option value="PRES">Presencial</option>
+        <option value="TELE">Teleconsulta</option>
+        <option value="AMBOS">Híbrida</option>
+    `;
 
-    espSelect.addEventListener("change", () => {
+    // Estado inicial
+    profSelect.innerHTML = '<option value="">Cualquiera</option>';
+    profSelect.disabled = true;
 
-        const espId = espSelect.value;
+    modSelect.innerHTML = modalidadesBase;
+    modSelect.disabled = false;
 
-        // limpiamos profesionales
-        profSelect.innerHTML = "";
+    // ============================================
+    // 1) FILTRAR PROFESIONALES POR ESPECIALIDAD
+    // ============================================
+    espSelect.addEventListener("change", function () {
 
-        // siempre agregamos "Cualquiera"
-        const opcionCualquiera = opcionesOriginales[0].cloneNode(true);
-        profSelect.appendChild(opcionCualquiera);
+        const espId = parseInt(this.value);
 
-        if (!espId) {
+        profSelect.innerHTML = '<option value="">Cualquiera</option>';
+
+        if (isNaN(espId)) {
             profSelect.disabled = true;
+
+            // reset modalidad
+            modSelect.innerHTML = modalidadesBase;
+            modSelect.disabled = false;
             return;
         }
 
+        const filtrados = profesionales.filter(p => p.especialidad === espId);
+
+        filtrados.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.id;
+            opt.textContent = p.nombre;
+            opt.dataset.tipo = p.tipo_consulta;  // ← CORRECTO
+            profSelect.appendChild(opt);
+        });
+
         profSelect.disabled = false;
 
-        opcionesOriginales.forEach(opt => {
-            if (!opt.dataset.especialidad) return;  // saltar "Cualquiera"
+        // Reset modalidad al cambiar especialidad
+        modSelect.innerHTML = modalidadesBase;
+        modSelect.disabled = false;
+    });
 
-            if (opt.dataset.especialidad === espId) {
-                profSelect.appendChild(opt.cloneNode(true));
-            }
-        });
+// =============================
+// 2) AJUSTAR MODALIDAD SEGÚN PROFESIONAL
+// =============================
+profSelect.addEventListener("change", function () {
+    const profesionalId = parseInt(this.value);
+    const prof = profesionales.find(p => p.id === profesionalId);
+
+    modSelect.innerHTML = ""; // limpiar siempre
+
+    if (!prof) {
+        modSelect.disabled = true;
+        return;
+    }
+
+    const modo = prof.modalidad;
+
+    if (modo === "PRES") {
+        modSelect.innerHTML = `<option value="PRES">Presencial</option>`;
+        modSelect.name = "modo";
+    }
+    else if (modo === "TELE") {
+        modSelect.innerHTML = `<option value="TELE">Teleconsulta</option>`;
+        modSelect.name = "modo";
+    }
+    else if (modo === "AMBOS") {
+        modSelect.innerHTML = `
+            <option value="PRES">Presencial</option>
+            <option value="TELE">Teleconsulta</option>
+            <option value="AMBOS">Híbrida</option>
+        `;
+        modSelect.name = "modo";
+    }
+
+    // ✔️ Bloquear igual
+    modSelect.disabled = (modo !== "AMBOS");
+    });
+
+    // Validación opcional simple de rango horario
+    document.getElementById("hora_hasta").addEventListener("change", function () {
+        const desde = document.getElementById("hora_desde").value;
+        const hasta = this.value;
+
+        if (desde && hasta && hasta < desde) {
+            alert("La hora 'hasta' no puede ser anterior a la hora 'desde'.");
+            this.value = "";
+        }
     });
 });
+
 </script>
+
 
 {% endblock %}
