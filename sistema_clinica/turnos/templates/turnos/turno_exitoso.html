@@ -51,8 +51,8 @@
     </div>
 
     <div class="mt-4 text-center">
-        <a href="{% url 'turnos:turnos_historial' paciente.id %}" class="btn btn-primary">
-            Ver historial de turnos
+        <a href="{% url 'turnos:turnos_agendados' paciente.id %}" class="btn btn-primary">
+            Ver turnos agendados
         </a>
         <a href="{% url 'turnos:solicitar_turno' paciente.id %}" class="btn btn-secondary">
             Solicitar otro turno

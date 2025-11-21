@@ -61,7 +61,11 @@ def turnos_disponibles(request):
     hora_desde = request.GET.get("hora_desde")
     hora_hasta = request.GET.get("hora_hasta")
     dias_preferidos = request.GET.getlist("dias[]")
+    paciente = None
     paciente_id = request.GET.get("paciente_id")
+
+    if paciente_id:
+        paciente = request.user.perfil.pacientes.filter(pk=paciente_id).first()
 
     estado_disponible = Estado.objects.get(pk=1)
 
@@ -160,6 +164,7 @@ def turnos_disponibles(request):
     # ==========================================
 
     return render(request, "turnos/turnos_disponibles.html", {
+        "paciente": paciente,
         "paciente_id": paciente_id,
         "fechas_ordenadas": fechas_ordenadas,
         "turnos_por_dia": turnos_por_dia,
