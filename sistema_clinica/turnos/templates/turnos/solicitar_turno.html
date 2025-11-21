@@ -53,13 +53,14 @@
             <!-- HORARIOS -->
             <div class="d-flex gap-3">
                 <div>
+                    
                     <small>Desde:</small>
-                    <input type="time" id="hora_desde" name="hora_desde" class="form-control">
+                    <input type="time" id="hora_desde" name="hora_desde" class="form-control" step="60">
                 </div>
 
                 <div>
                     <small>Hasta:</small>
-                    <input type="time" id="hora_hasta" name="hora_hasta" class="form-control">
+                    <input type="time" id="hora_hasta" name="hora_hasta" class="form-control" step="60">
                 </div>
             </div>
 
@@ -171,11 +172,7 @@ profSelect.addEventListener("change", function () {
         modSelect.name = "modo";
     }
     else if (modo === "AMBOS") {
-        modSelect.innerHTML = `
-            <option value="PRES">Presencial</option>
-            <option value="TELE">Teleconsulta</option>
-            <option value="AMBOS">Híbrida</option>
-        `;
+        modSelect.innerHTML = `<option value="AMBOS">Híbrida</option>`;
         modSelect.name = "modo";
     }
 

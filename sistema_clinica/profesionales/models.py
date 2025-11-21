@@ -50,7 +50,7 @@ class Profesional(models.Model):
     def dias_como_lista(self):
         if not self.dias_disponibles:
             return []
-        return [d.strip() for d in self.dias_disponibles.split(",")]
+        return [d.strip() for d in self.dias_disponibles.split("-")]
 
     especialidad = models.ForeignKey(
         Especialidad,

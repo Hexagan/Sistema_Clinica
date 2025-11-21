@@ -3,24 +3,25 @@
 {% block title %}Detalle del Turno{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container mt-4">
 
-    <h2 class="mb-4">Detalle del turno</h2>
+    <h2 class="mb-3">Detalle del Turno</h2>
 
-    <div class="card shadow p-4">
-
-        <h4 class="mb-3">{{ turno.profesional.nombre }}</h4>
-
+    <div class="card p-4 shadow-sm">
+        <p><strong>Profesional:</strong> {{ turno.profesional.nombre }}</p>
         <p><strong>Especialidad:</strong> {{ turno.profesional.especialidad.nombre }}</p>
         <p><strong>Fecha:</strong> {{ turno.fecha }}</p>
         <p><strong>Hora:</strong> {{ turno.hora }}</p>
-        <p><strong>Paciente:</strong> {{ turno.paciente.nombre }}</p>
-
-        {% if turno.estado %}
-        <p><strong>Estado:</strong> {{ turno.estado }}</p>
+        <p><strong>Modalidad:</strong> {{ turno.profesional.get_tipo_consulta_display }}</p>
+        <p><strong>Consultorio:</strong> {{ turno.profesional.consultorio }}</p>
+        <p><strong>Piso:</strong> {{ turno.profesional.piso }}</p>
+        {% if turno.observaciones %}
+            <p><strong>Observaciones:</strong> {{ turno.observaciones }}</p>
         {% endif %}
+    </div>
 
-        <a href="{% url 'turnos:turnos_historial' %}" class="btn btn-secondary mt-3">
+    <div class="text-end mt-3">
+        <a href="{% url 'turnos:turnos_historial' paciente.id %}" class="btn btn-secondary">
             Volver al historial
         </a>
     </div>

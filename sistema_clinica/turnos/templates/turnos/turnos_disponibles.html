@@ -1,3 +1,5 @@
+
+
 {% extends "base.html" %}
 {% load tz %}
 {% load turnos_extras %}
@@ -5,6 +7,13 @@
 {% block title %}Turnos disponibles{% endblock %}
 
 {% block extra_css %}
+
+<pre>
+DÍAS: {{ query.dias }}
+HORA DESDE: {{ query.hora_desde }}
+TURNOS: {{ turnos_por_dia }}
+</pre>
+
 <style>
 
 /* Tabs */

@@ -3,18 +3,38 @@
 {% block title %}Historial de Turnos{% endblock %}
 
 {% block content %}
-<h2>Historial de Turnos</h2>
+<h2 class="mb-4">Historial de Turnos</h2>
 
 {% if turnos %}
-    <ul class="list-group">
-    {% for t in turnos %}
-        <li class="list-group-item">
-            <strong>{{ t.fecha|date:"d/m/Y" }} - {{ t.hora|time:"H:i" }}</strong><br>
-            Profesional: {{ t.profesional.nombre }}<br>
-            Estado: {{ t.estado.descripcion }}
-        </li>
-    {% endfor %}
-    </ul>
+    <div class="row">
+        {% for t in turnos %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body d-flex flex-column justify-content-between">
+
+                    <div>
+                        <h5 class="card-title">
+                            {{ t.fecha|date:"d/m/Y" }} - {{ t.hora|time:"H:i" }}
+                        </h5>
+
+                        <p class="mb-1"><strong>Profesional:</strong> {{ t.profesional.nombre }}</p>
+                        <p class="mb-1"><strong>Especialidad:</strong> {{ t.profesional.especialidad.nombre }}</p>
+                        <p class="mb-1"><strong>Estado:</strong> {{ t.estado.descripcion }}</p>
+                    </div>
+
+                    <div class="mt-3 text-end">
+                        <a href="{% url 'turnos:ver_turno' paciente.id t.id %}" class="btn btn-outline-primary btn-sm">
+                            Detalle del Turno
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
 {% else %}
     <div class="alert alert-info">No hay turnos históricos registrados.</div>
 {% endif %}

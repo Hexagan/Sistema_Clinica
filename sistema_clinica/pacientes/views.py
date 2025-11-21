@@ -3,12 +3,18 @@ from django.contrib.auth.decorators import login_required
 from .models import Paciente
 from profesionales.models import Especialidad, Profesional
 
+def cargar_paciente(request, paciente_id):
+    perfil = request.user.perfil
+    return perfil.pacientes.get(pk=paciente_id)
+
 @login_required
 def portal_paciente(request, paciente_id):
     usuario = request.user
     perfil = usuario.perfil
 
     paciente_seleccionado = perfil.pacientes.get(pk=paciente_id)
+
+    request.session["paciente_id"] = paciente_id
 
     return render(request, "portal_paciente.html", {
         "usuario": usuario,
@@ -127,3 +133,69 @@ def resultados_turnos(request):
             })
 
     return render(request, "lista_turnos.html", {"resultados": resultados})
+
+from django.shortcuts import render
+
+def indicaciones(request, paciente_id):
+    paciente = cargar_paciente(request, paciente_id)
+    return render(request, "pacientes/indicaciones.html", {
+        "paciente": paciente,
+        "paciente_id": paciente_id,
+    })
+
+
+def peso_altura(request, paciente_id):
+    paciente = cargar_paciente(request, paciente_id)
+    return render(request, "pacientes/peso_altura.html", {
+        "paciente": paciente,
+        "paciente_id": paciente_id,
+    })
+
+def temperatura(request, paciente_id):
+    paciente = cargar_paciente(request, paciente_id)
+    return render(request, "pacientes/temperatura.html", {
+        "paciente": paciente,
+        "paciente_id": paciente_id,
+    })
+
+def frecuencia_cardiaca(request, paciente_id):
+    paciente = cargar_paciente(request, paciente_id)
+    return render(request, "pacientes/frecuencia_cardiaca.html", {
+        "paciente": paciente,
+        "paciente_id": paciente_id,
+    })
+
+def presion_arterial(request, paciente_id):
+    paciente = cargar_paciente(request, paciente_id)
+    return render(request, "pacientes/presion_arterial.html", {
+        "paciente": paciente,
+        "paciente_id": paciente_id,
+    })
+
+def glucemia(request, paciente_id):
+    paciente = cargar_paciente(request, paciente_id)
+    return render(request, "pacientes/glucemia.html", {
+        "paciente": paciente,
+        "paciente_id": paciente_id,
+    })
+
+def frecuencia_respiratoria(request, paciente_id):
+    paciente = cargar_paciente(request, paciente_id)
+    return render(request, "pacientes/frecuencia_respiratoria.html", {
+        "paciente": paciente,
+        "paciente_id": paciente_id,
+    })
+
+def saturacion_oxigeno(request, paciente_id):
+    paciente = cargar_paciente(request, paciente_id)
+    return render(request, "pacientes/saturacion_oxigeno.html", {
+        "paciente": paciente,
+        "paciente_id": paciente_id,
+    })
+
+def disnea(request, paciente_id):
+    paciente = cargar_paciente(request, paciente_id)
+    return render(request, "pacientes/disnea.html", {
+        "paciente": paciente,
+        "paciente_id": paciente_id,
+    })

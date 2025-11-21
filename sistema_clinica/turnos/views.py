@@ -58,7 +58,7 @@ def turnos_disponibles(request):
     especialidad = request.GET.get("especialidad")
     profesional_id = request.GET.get("profesional")
     modo = request.GET.get("modo")
-    hora_desde = request.GET.get("hora_desdesde")
+    hora_desde = request.GET.get("hora_desde")
     hora_hasta = request.GET.get("hora_hasta")
     dias_preferidos = request.GET.getlist("dias[]")
     paciente_id = request.GET.get("paciente_id")
@@ -74,9 +74,15 @@ def turnos_disponibles(request):
         "estado"
     ).filter(estado=estado_disponible)
 
-    # ==========================================
-    # 2) FILTROS
-    # ==========================================
+    
+    # CONSULTA BASE
+    turnos = Turno.objects.select_related(
+        "profesional",
+        "profesional__especialidad",
+        "estado"
+    ).filter(estado=estado_disponible)
+
+    # FILTROS (solo queryset)
     if especialidad:
         turnos = turnos.filter(profesional__especialidad_id=especialidad)
 
@@ -92,11 +98,47 @@ def turnos_disponibles(request):
     if hora_hasta:
         turnos = turnos.filter(hora__lte=hora_hasta)
 
+
+    print("Los dias preferidos son: ", dias_preferidos)
+    # === FILTRO POR DÍAS PREFERIDOS ===
+    dias_preferidos = request.GET.getlist("dias[]")
+
     if dias_preferidos:
-        turnos = [
-            t for t in turnos
-            if any(d in t.profesional.dias_como_lista() for d in dias_preferidos)
-        ]
+        dias_preferidos = [d.upper() for d in dias_preferidos]
+
+        MAP = {
+            "Mon": "LUN",
+            "Tue": "MAR",
+            "Wed": "MIE",
+            "Thu": "JUE",
+            "Fri": "VIE",
+            "Sat": "SAB",
+            "Sun": "DOM",
+        }
+
+        turnos_filtrados = []
+        for t in turnos:
+            # Día real del turno (Mon/Tue/Wed…)
+            dia_python = t.fecha.strftime("%a")
+
+            # Convertirlo a español (LUN, MAR…)
+            dia_turno = MAP[dia_python]
+
+            # ¿Coincide con preferencias?
+            if dia_turno in dias_preferidos:
+                turnos_filtrados.append(t)
+
+        turnos = turnos_filtrados
+
+    # EXCLUIR TURNOS PASADOS
+    from datetime import date, datetime
+    hoy = date.today()
+    ahora = datetime.now().time()
+
+    turnos = [
+        t for t in turnos
+        if t.fecha > hoy or (t.fecha == hoy and t.hora > ahora)
+    ]
 
     # ==========================================
     # 3) ORDEN
@@ -116,9 +158,6 @@ def turnos_disponibles(request):
     # ==========================================
     # 5) ENVIAR AL TEMPLATE
     # ==========================================
-    print("FECHAS ORDENADAS:", fechas_ordenadas)
-    for f in fechas_ordenadas:
-        print("FECHA", f, " → CANT:", len(turnos_por_dia[f]))
 
     return render(request, "turnos/turnos_disponibles.html", {
         "paciente_id": paciente_id,
@@ -203,15 +242,6 @@ def turnos_historial(request, paciente_id):
         "turnos": historial_ordenado
     })
 
-
-def ver_turno(request, paciente_id, turno_id):
-    perfil = request.user.perfil
-    paciente = perfil.pacientes.get(pk=paciente_id)
-    turno = get_object_or_404(Turno, id=turno_id, paciente=paciente)
-    return render(request, "turnos/ver_turno.html", {"paciente": paciente, "turno": turno})
-
-from django.utils.timezone import localdate
-
 def turnos_agendados(request, paciente_id):
     perfil = request.user.perfil
     paciente = perfil.pacientes.get(pk=paciente_id)
@@ -234,4 +264,14 @@ def turnos_agendados(request, paciente_id):
     return render(request, "turnos/turnos_agendados.html", {
         "paciente": paciente,
         "turnos": turnos_futuros
+    })
+
+def ver_turno(request, paciente_id, turno_id):
+    perfil = request.user.perfil
+    paciente = perfil.pacientes.get(pk=paciente_id)
+    turno = get_object_or_404(Turno, id=turno_id, paciente=paciente)
+
+    return render(request, "turnos/ver_turno.html", {
+        "paciente": paciente,
+        "turno": turno,
     })

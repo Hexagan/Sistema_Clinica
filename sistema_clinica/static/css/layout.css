@@ -219,3 +219,7 @@ body {
     pointer-events: auto;
     transform: translateX(0);
 }
+
+.amenity-text {
+    margin-top: 15px;
+}
