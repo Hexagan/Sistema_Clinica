@@ -102,7 +102,7 @@ def presion_arterial(request, paciente_id):
         )
         return redirect("controles:presion_arterial", paciente_id=paciente_id)
 
-    return render(request, "controles/presion.html", {
+    return render(request, "controles/presion_arterial.html", {
         "ultimo": ultimo,
         "paciente": paciente
     })
