@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+
+    <h2 class="mb-4">Medición de temperatura</h2>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">Temperatura* (°C)</label>
+            <input type="number" name="valor" step="0.1" class="form-control" required>
+            {% if ultimo %}<small class="text-muted">Último valor: {{ ultimo.valor }} °C</small>{% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Zona*</label>
+            <select name="zona" class="form-select" required>
+                <option value="axilar">Axilar</option>
+                <option value="oral">Oral</option>
+                <option value="rectal">Rectal</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="col mb-3">
+                <label class="form-label">Fecha*</label>
+                <input type="date" name="fecha" class="form-control" required>
+            </div>
+            <div class="col mb-3">
+                <label class="form-label">Hora*</label>
+                <input type="time" name="hora" class="form-control" required>
+            </div>
+        </div>
+
+        <button class="btn btn-primary">Guardar</button>
+    </form>
+</div>
+{% endblock %}

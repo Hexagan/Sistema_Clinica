@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %} Glucemia {% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <h2 class="mb-4">Glucemia</h2>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">Glucemia* (mg/dl)</label>
+            <input type="number" name="valor" class="form-control" required>
+            {% if ultimo %}<small class="text-muted">Último valor: {{ ultimo.valor }} mg/dl</small>{% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">¿Posterior a comida?*</label>
+            <select name="post_comida" class="form-select" required>
+                <option value="si">Sí</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="col mb-3">
+                <label class="form-label">Fecha*</label>
+                <input type="date" name="fecha" class="form-control" required>
+            </div>
+            <div class="col mb-3">
+                <label class="form-label">Hora*</label>
+                <input type="time" name="hora" class="form-control" required>
+            </div>
+        </div>
+
+        <button class="btn btn-primary">Guardar</button>
+    </form>
+
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-3">Piezas de información</h2>
+<p>Aquí se muestran todas las piezas de información que su médico de cabecera o especialista le compartió.<br>
+Se encuentran ordenadas por fecha.</p>
+
+<hr>
+
+{% if piezas %}
+    <div class="lista-piezas">
+        {% for p in piezas %}
+            <div class="card mb-3 p-3 shadow-sm">
+                <h5>{{ p.titulo }}</h5>
+                <p class="text-muted">{{ p.fecha }}</p>
+                <p>{{ p.descripcion }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <!-- Card azul por defecto -->
+    <div class="card p-4 mt-4" style="background:#e4f0ff; border-left: 5px solid #007bff;">
+        <strong>No se encontraron piezas de información.</strong>
+    </div>
+{% endif %}
+
+{% endblock %}

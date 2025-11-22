@@ -32,6 +32,7 @@ urlpatterns = [
     path('amenities/', include('amenities.urls')),
     path('usuarios/', include('usuarios.urls')),
     path('logout/', LogoutView.as_view(next_page='usuarios:login'), name='logout'),
+    path("controles/", include("controles.urls")),
 
     path('', home_redirect),
 ]

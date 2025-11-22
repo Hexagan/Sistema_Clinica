@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %} Peso y Altura {% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <h2 class="mb-4">Medición de peso y altura</h2>
+
+    <p>Mida su altura y peso e ingrese los resultados a continuación.</p>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">Altura* (en mts)</label>
+            <input type="number" step="0.01" name="altura" class="form-control" required>
+            {% if ultimo %}
+            <small class="text-muted">Último valor cargado: {{ ultimo.altura }} mts</small>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Peso* (en KG)</label>
+            <input type="number" step="0.1" name="peso" class="form-control" required>
+            {% if ultimo %}
+            <small class="text-muted">Último valor cargado: {{ ultimo.peso }} KG</small>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Fecha*</label>
+            <input type="date" name="fecha" class="form-control" required>
+        </div>
+
+        <hr>
+
+        <h4>Índice de masa corporal (IMC)</h4>
+        <p>El IMC es un indicador confiable de grasa corporal, calculado en función del peso y la estatura.</p>
+
+        {% if ultimo %}
+        <p class="fw-bold">
+            IMC = {{ ultimo.imc }}
+        </p>
+        {% else %}
+        <p class="fw-bold">
+            IMC = Incalculable
+        </p>
+        {% endif %}
+
+        <ul>
+            <li>Menor a 18.5: Bajo peso</li>
+            <li>Entre 18.5 y 25: Normal</li>
+            <li>Entre 25 y 30: Sobrepeso</li>
+            <li>Mayor a 30: Obesidad</li>
+        </ul>
+
+        <button type="reset" class="btn btn-secondary mt-3">Limpiar</button>
+        <button type="submit" class="btn btn-primary mt-3">Guardar</button>
+    </form>
+</div>
+{% endblock %}
