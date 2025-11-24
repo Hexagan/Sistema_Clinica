@@ -51,3 +51,12 @@ class Turno(models.Model):
 
     def __str__(self):
         return f"{self.fecha} {self.hora} - {self.profesional}"
+
+class CheckInLog(models.Model):
+    turno = models.ForeignKey(Turno, on_delete=models.CASCADE)
+    paciente = models.ForeignKey("pacientes.Paciente", on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    llego_temprano = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Check-in {self.paciente} - {self.timestamp}"

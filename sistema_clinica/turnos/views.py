@@ -1,9 +1,11 @@
 import json
 import qrcode
 import base64
+import re
+from django.urls import reverse
 from io import BytesIO
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Turno, Estado, Paciente
+from .models import Turno, CheckInLog, Estado, Paciente
 from collections import defaultdict
 from profesionales.models import Especialidad, Profesional
 from django.core.serializers.json import DjangoJSONEncoder
@@ -11,6 +13,7 @@ from django.db import transaction
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, time
+from django.http import JsonResponse
 
 # -----------------------------
 # SOLICITAR TURNO
@@ -246,7 +249,9 @@ def reservar_turno(request):
     # ==========================================
     # No se puede generar un QR antes porque el QR depende del turno.id, que solo existe al guardar.
     # ==========================================
-    qr_data = f"TURNO:{turno.id};PACIENTE:{paciente.id};FECHA:{turno.fecha};HORA:{turno.hora}"
+    qr_data = request.build_absolute_uri(
+        reverse("turnos:checkin_qr") + f"?qr=TURNO:{turno.id};PACIENTE:{paciente.id};FECHA:{turno.fecha};HORA:{turno.hora}"
+    )
 
     qr_img = qrcode.make(qr_data)
     buffer = BytesIO()
@@ -412,3 +417,78 @@ def cancelar_turno(request, paciente_id, turno_id):
 
     messages.success(request, "El turno fue cancelado correctamente.")
     return redirect("turnos:turnos_agendados", paciente_id=paciente_id)
+
+
+def checkin_qr(request):
+    """
+    Lee el código QR y muestra una página HTML de confirmación del check-in.
+    """
+
+    qr_raw = request.GET.get("qr")
+
+    if not qr_raw:
+        return render(request, "turnos/checkin_confirmado.html", {
+            "error": "No se recibió ningún código QR."
+        })
+
+    # ============================
+    # PARSEAR QR
+    # ============================
+    pattern = r"TURNO:(\d+);PACIENTE:(\d+);FECHA:([\d\-]+);HORA:([\d:]+)"
+    match = re.match(pattern, qr_raw)
+
+    if not match:
+        return render(request, "turnos/checkin_confirmado.html", {
+            "error": "Código QR inválido o dañado."
+        })
+
+    turno_id, paciente_id, fecha_str, hora_str = match.groups()
+
+    # ============================
+    # VALIDAR TURNO
+    # ============================
+    try:
+        turno = Turno.objects.get(pk=turno_id)
+    except Turno.DoesNotExist:
+        return render(request, "turnos/checkin_confirmado.html", {
+            "error": "El turno no existe."
+        })
+
+    # Validación de seguridad
+    if str(turno.paciente_id) != paciente_id:
+        return render(request, "turnos/checkin_confirmado.html", {
+            "error": "Este QR no corresponde al paciente del turno.",
+            "paciente": turno.paciente,
+        })
+
+    ahora = timezone.localtime()
+
+    # Calcular si llegó temprano
+    dt_turno = timezone.make_aware(datetime.combine(turno.fecha, turno.hora))
+    llego_temprano = ahora < dt_turno
+
+    # ============================
+    # registrar check-in
+    # ============================
+    turno.check_in = ahora
+    turno.estado = Estado.objects.get(pk=3)  # Asistido
+    turno.save()
+
+    # Guardar log
+    CheckInLog.objects.create(
+        turno=turno,
+        paciente=turno.paciente,
+        llego_temprano=llego_temprano,
+        timestamp=ahora
+    )
+
+    # ============================
+    # RENDERIZAR PANTALLA HTML
+    # ============================
+    return render(request, "turnos/checkin_confirmado.html", {
+        "paciente": turno.paciente, 
+        "turno": turno,
+        "ahora": ahora,
+        "llego_temprano": llego_temprano
+        
+    })

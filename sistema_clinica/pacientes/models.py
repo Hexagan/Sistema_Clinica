@@ -69,3 +69,4 @@ class Estudio(models.Model):
 
     def __str__(self):
         return f"Estudio {self.id} - {self.paciente} ({self.fecha_estudio})"
+    

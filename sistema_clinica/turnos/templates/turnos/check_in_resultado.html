@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    {% if ok %}
+        <div class="alert alert-success">
+            <h4>✔ Check-in realizado con éxito</h4>
+            <p><strong>Paciente:</strong> {{ turno.paciente }}</p>
+            <p><strong>Profesional:</strong> {{ turno.profesional.nombre }}</p>
+            <p><strong>Hora:</strong> {{ turno.hora }}</p>
+            <p><strong>Registrado a las:</strong> {{ turno.check_in }}</p>
+        </div>
+
+    {% else %}
+        <div class="alert alert-danger">
+            <h4>✖ No se pudo realizar el check-in</h4>
+            <p>{{ mensaje }}</p>
+            {% if check_in %}
+                <p>El check-in previo fue: {{ check_in }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

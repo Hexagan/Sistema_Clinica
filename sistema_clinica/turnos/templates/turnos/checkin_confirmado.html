@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Check-In Realizado{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5" style="max-width: 600px;">
+
+    {% if error %}
+        <div class="alert alert-danger text-center">
+            <h4>Error</h4>
+            <p>{{ error }}</p>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-secondary w-100">Volver al inicio</a>
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-success text-center">
+            <h3>¡Check-in registrado!</h3>
+        </div>
+
+        <div class="card p-4 shadow-sm">
+
+            <p><strong>Paciente:</strong> {{ turno.paciente.nombre }}</p>
+
+            <p><strong>Profesional:</strong> {{ turno.profesional.nombre }}</p>
+            <p><strong>Especialidad:</strong> {{ turno.profesional.especialidad.nombre }}</p>
+
+            <hr>
+
+            <p><strong>Fecha del turno:</strong> {{ turno.fecha }}</p>
+            <p><strong>Hora del turno:</strong> {{ turno.hora }}</p>
+
+            <p><strong>Hora del check-in:</strong> {{ ahora|date:"H:i:s" }}</p>
+
+            {% if llego_temprano %}
+                <p class="text-success"><strong>Llegó temprano.</strong></p>
+            {% else %}
+                <p class="text-danger"><strong>Llegó sobre la hora / justo a tiempo.</strong></p>
+            {% endif %}
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-primary w-100">Volver al inicio</a>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
