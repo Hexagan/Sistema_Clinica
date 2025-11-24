@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Cartilla Médica{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3>Cartilla Médica</h3>
+
+    <form class="row g-2 mb-4" method="get">
+        <div class="col-md-4">
+            <input name="q" class="form-control" placeholder="Profesional (nombre o apellido)" value="{{ q }}">
+        </div>
+        <div class="col-md-4">
+            <input name="especialidad" class="form-control" placeholder="Especialidad" value="{{ especialidad }}">
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary">Buscar</button>
+            <a href="{% url 'pacientes:cartilla' paciente.id %}" class="btn btn-outline-secondary">Limpiar</a>
+        </div>
+    </form>
+
+    {% if profesionales %}
+        <div class="list-group">
+            {% for p in profesionales %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ p.nombre }}</strong><br>
+                        <small>{{ p.especialidad.nombre }}</small>
+                    </div>
+                    <div>
+                        {% if p.estado %}
+                            <a class="btn btn-sm btn-primary" href="{% url 'turnos:solicitar_turno' request.user.perfil.pacientes.first.id % }}?prof={{ p.id }}">Reservar turno</a>
+                        {% else %}
+                            <button class="btn btn-sm btn-secondary" disabled>Sin turnos web</button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">No se encontraron profesionales.</div>
+    {% endif %}
+</div>
+{% endblock %}

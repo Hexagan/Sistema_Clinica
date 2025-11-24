@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Estudios{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Mis Estudios</h3>
+        <a href="{% url 'pacientes:cargar_estudio' paciente.id %}" class="btn btn-success">
+            Cargar Estudio
+        </a>
+    </div>
+
+    {% if estudios %}
+        <div class="list-group">
+            {% for e in estudios %}
+            <div class="list-group-item d-flex justify-content-between">
+                <div>
+                    <strong>{{ e.fecha_estudio }}</strong>
+                    — {{ e.observaciones|default:"(sin observaciones)" }}
+                </div>
+                <div class="text-end">
+                    {% if e.archivo %}
+                        <a href="{{ e.archivo.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                            Ver archivo
+                        </a>
+                    {% endif %}
+                    <small class="text-muted d-block">{{ e.creado }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No hay estudios cargados.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

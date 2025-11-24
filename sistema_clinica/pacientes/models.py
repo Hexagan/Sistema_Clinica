@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Paciente(models.Model):
 
@@ -17,3 +18,54 @@ class Paciente(models.Model):
 
     def __str__(self):
         return self.nombre + " " + self.apellido
+    
+class Mensaje(models.Model):
+    remitente = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="mensajes_enviados"
+    )
+
+    profesional_destino = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.CASCADE,
+        related_name='mensajes_recibidos'
+    )
+
+    texto = models.TextField(max_length=1000)
+    creado = models.DateTimeField(auto_now_add=True)
+    leido = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-creado']
+
+
+    def __str__(self):
+        return (
+            f"Mensaje {self.id} — "
+            f"{self.remitente.username} → {self.profesional_destino.nombre}"
+        )
+
+class Estudio(models.Model):
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='estudios'
+    )
+
+    fecha_estudio = models.DateField()
+    observaciones = models.TextField(blank=True)
+
+    archivo = models.FileField(
+        upload_to='estudios/',
+        blank=True,
+        null=True
+    )
+
+    creado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha_estudio', '-creado']
+
+    def __str__(self):
+        return f"Estudio {self.id} - {self.paciente} ({self.fecha_estudio})"

@@ -19,6 +19,9 @@ from django.urls import path, include
 from django.shortcuts import redirect
 from django.contrib.auth.views import LogoutView
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 def home_redirect(request):
     if request.user.is_authenticated:
         return redirect("usuarios:perfil")
@@ -36,4 +39,7 @@ urlpatterns = [
 
     path('', home_redirect),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

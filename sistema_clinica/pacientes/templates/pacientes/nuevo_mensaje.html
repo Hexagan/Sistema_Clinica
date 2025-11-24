@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Mensaje{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3>Nuevo mensaje</h3>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Para (Profesional)</label>
+            <select class="form-select" name="profesional" required>
+                <option value="">Seleccionar profesional...</option>
+                {% for p in profesionales %}
+                    <option value="{{ p.id }}">{{ p.nombre }} — {{ p.especialidad.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Mensaje</label>
+            <textarea name="texto" rows="5" class="form-control" maxlength="1000" placeholder="Escriba su mensaje..."></textarea>
+            <small class="form-text text-muted">No es vía de urgencias. Respuesta en 48 hs hábiles.</small>
+        </div>
+
+        <button class="btn btn-primary">Enviar mensaje</button>
+        <a href="{% url 'pacientes:mensajeria' paciente.id %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

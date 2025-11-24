@@ -21,6 +21,10 @@ class PesoAltura(models.Model):
         self.calcular_imc()
         super().save(*args, **kwargs)
 
+    class Meta:
+        verbose_name = "Peso y Altura"
+        verbose_name_plural = "Pesos y Alturas"
+
 
 class Temperatura(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
@@ -37,6 +41,9 @@ class FrecuenciaCardiaca(models.Model):
     fecha = models.DateField()
     hora = models.TimeField()
 
+    class Meta:
+        verbose_name = "Frecuencia Cardíaca"
+        verbose_name_plural = "Frecuencias Cardíacas"
 
 class PresionArterial(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
@@ -48,6 +55,9 @@ class PresionArterial(models.Model):
     fecha = models.DateField()
     hora = models.TimeField()
 
+    class Meta:
+        verbose_name = "Presión Arterial"
+        verbose_name_plural = "Presiones Arteriales"
 
 class Glucemia(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
@@ -63,6 +73,9 @@ class FrecuenciaRespiratoria(models.Model):
     fecha = models.DateField()
     hora = models.TimeField()
 
+    class Meta:
+        verbose_name = "Frecuencia Respiratoria"
+        verbose_name_plural = "Frecuencias Respiratorias"
 
 class Disnea(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
@@ -80,6 +93,10 @@ class SaturacionOxigeno(models.Model):
 
     def __str__(self):
         return f"{self.valor}% - {self.fecha}"
+    
+    class Meta:
+        verbose_name = "Saturación de Oxígeno"
+        verbose_name_plural = "Saturaciones de Oxígeno"
 
 class Indicaciones(models.Model):
     titulo = models.CharField(max_length=255)
@@ -89,3 +106,7 @@ class Indicaciones(models.Model):
 
     def __str__(self):
         return self.titulo
+
+    class Meta:
+        verbose_name = "Indicación"
+        verbose_name_plural = "Indicaciones"

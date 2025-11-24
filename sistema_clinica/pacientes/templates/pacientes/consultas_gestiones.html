@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Consultas y Gestiones{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3>Consultas y Gestiones</h3>
+
+    <p>Te damos la bienvenida a la sección Consultas y Gestiones. Al finalizar, vas a recibir un número de gestión para seguimiento.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">¿Con qué necesita ayuda?</label>
+            <textarea name="pregunta" class="form-control" rows="4" placeholder="Escriba su consulta..."></textarea>
+        </div>
+
+        <button class="btn btn-primary">Enviar solicitud</button>
+    </form>
+</div>
+{% endblock %}

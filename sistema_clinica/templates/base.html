@@ -33,12 +33,16 @@
 
         <div class="d-flex align-items-center gap-3 ms-auto">
 
-            <a href="#" class="topbar-link d-flex align-items-center gap-1 text-white text-decoration-none">
+            <!-- CONSULTAS Y GESTIONES -->
+            <a href="{% url 'pacientes:consultas_gestiones' paciente.id %}" 
+               class="topbar-link d-flex align-items-center gap-1 text-white text-decoration-none">
                 <span class="material-symbols-outlined">support_agent</span>
                 Consultas y Gestiones
             </a>
 
-            <a href="#" class="topbar-link d-flex align-items-center gap-1 text-white text-decoration-none">
+            <!-- MENSAJERÍA -->
+            <a href="{% url 'pacientes:mensajeria' paciente.id %}" 
+               class="topbar-link d-flex align-items-center gap-1 text-white text-decoration-none">
                 <span class="material-symbols-outlined">mail</span>
                 Mensajería
             </a>
@@ -95,7 +99,11 @@
             </a>
         </div>
 
-        <a href="#"><span class="material-symbols-outlined">biotech</span><span class="text">Estudios</span></a>
+        <!-- ESTUDIOS -->
+        <a href="{% url 'pacientes:estudios' paciente.id %}">
+            <span class="material-symbols-outlined">biotech</span>
+            <span class="text">Estudios</span>
+        </a>
 
         <!-- CONTROLES -->
         <a data-bs-toggle="collapse" href="#submenuControles">
@@ -150,47 +158,71 @@
                 <span class="material-symbols-outlined">airwave</span>
                 <span class="text">Disnea</span>
             </a>
-            
+        </div>
 
-    </div>
+        <!-- MEDICAMENTOS -->
+        <a href="{% url 'pacientes:medicamentos' paciente.id %}">
+            <span class="material-symbols-outlined">medication</span>
+            <span class="text">Medicamentos</span>
+        </a>
 
+        <!-- MÉDICOS -->
+        <a href="{% url 'pacientes:mis_medicos' paciente.id %}">
+            <span class="material-symbols-outlined">medical_services</span>
+            <span class="text">Médicos</span>
+        </a>
 
-        <a href="#"><span class="material-symbols-outlined">medication</span><span class="text">Medicamentos</span></a>
-        <a href="#"><span class="material-symbols-outlined">forum</span><span class="text">Comunidades</span></a>
-        <a href="#"><span class="material-symbols-outlined">medical_services</span><span class="text">Médicos</span></a>
-        <a href="#"><span class="material-symbols-outlined">call</span><span class="text">Teleconsultas</span></a>
-        <a href="#"><span class="material-symbols-outlined">book</span><span class="text">Mi Diario</span></a>
+        <!-- TELECONSULTAS -->
+        <a href="{% url 'pacientes:teleconsultas' paciente.id %}">
+            <span class="material-symbols-outlined">call</span>
+            <span class="text">Teleconsultas</span>
+        </a>
+
+        <!-- DIARIO (placeholder) -->
+        <a href="{% url 'pacientes:mi_diario' paciente.id %}">
+            <span class="material-symbols-outlined">book</span>
+            <span class="text">Mi Diario</span>
+        </a>
 
         <hr class="text-white">
 
-        <a href="#"><span class="material-symbols-outlined">shield_person</span><span class="text">Mi Cobertura</span></a>
-        <a href="#"><span class="material-symbols-outlined">menu_book</span><span class="text">Cartilla Médica</span></a>
-
-    <!-- AMENITIES -->
-    <a data-bs-toggle="collapse" href="#submenuAmenities">
-        <span class="material-symbols-outlined">grade</span>
-        <span class="text">Amenities</span>
-        <span class="material-symbols-outlined">chevron_right</span>
-    </a>
-
-    <div class="collapse submenu" id="submenuAmenities">
-
-        <a href="{% url 'amenities:gimnasio' paciente.id %}">
-            <span class="material-symbols-outlined">fitness_center</span>
-            <span class="text">Gimnasio</span>
+        <!-- MI COBERTURA (placeholder) -->
+        <a href="#">
+            <span class="material-symbols-outlined">shield_person</span>
+            <span class="text">Mi Cobertura</span>
         </a>
 
-        <a href="{% url 'amenities:nutricion' paciente.id %}">
-            <span class="material-symbols-outlined">nutrition</span>
-            <span class="text">Nutrición</span>
+        <!-- CARTILLA MÉDICA -->
+        <a href="{% url 'pacientes:cartilla' paciente.id %}">
+            <span class="material-symbols-outlined">menu_book</span>
+            <span class="text">Cartilla Médica</span>
         </a>
 
-        <a href="{% url 'amenities:talleres' paciente.id %}">
-            <span class="material-symbols-outlined">self_improvement</span>
-            <span class="text">Talleres de salud</span>
+        <!-- AMENITIES -->
+        <a data-bs-toggle="collapse" href="#submenuAmenities">
+            <span class="material-symbols-outlined">grade</span>
+            <span class="text">Amenities</span>
+            <span class="material-symbols-outlined">chevron_right</span>
         </a>
 
-    </div>
+        <div class="collapse submenu" id="submenuAmenities">
+
+            <a href="{% url 'amenities:gimnasio' paciente.id %}">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span class="text">Gimnasio</span>
+            </a>
+
+            <a href="{% url 'amenities:nutricion' paciente.id %}">
+                <span class="material-symbols-outlined">nutrition</span>
+                <span class="text">Nutrición</span>
+            </a>
+
+            <a href="{% url 'amenities:talleres' paciente.id %}">
+                <span class="material-symbols-outlined">self_improvement</span>
+                <span class="text">Talleres de salud</span>
+            </a>
+
+        </div>
 
     </div>
 

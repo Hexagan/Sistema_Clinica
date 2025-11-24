@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Mi Diario{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <h3>Mi Diario</h3>
+
+    <p class="text-muted">
+        Ver resultados de mis estudios y documentos clínicos.<br>
+        <strong>Es IMPORTANTE que la interpretación de estos resultados la realice junto a su médico.</strong>
+    </p>
+
+    <div class="text-end mb-3">
+        <a href="{% url 'pacientes:cargar_estudio' paciente.id %}" class="btn btn-success">
+            Cargar documento clínico
+        </a>
+    </div>
+
+    <form method="get" class="mb-3">
+        <label><strong>Agrupar por:</strong></label><br>
+
+        <label>
+            <input type="radio" name="ordenar" value="fecha"
+                onchange="this.form.submit()"
+                {% if ordenar == 'fecha' %}checked{% endif %}>
+            Fecha Documento
+        </label>
+
+        &nbsp;&nbsp;
+
+        <label>
+            <input type="radio" name="ordenar" value="descripcion"
+                onchange="this.form.submit()"
+                {% if ordenar == 'descripcion' %}checked{% endif %}>
+            Descripción (A-Z)
+        </label>
+    </form>
+
+    <hr>
+
+    {% if grupos %}
+        {% for fecha, docs in grupos.items %}
+            <h5 class="mt-4">{{ fecha }} ({{ docs|length }})</h5>
+
+            <ul class="list-group mt-2">
+
+                {% for doc in docs %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <strong>{{ doc.observaciones|default:"(Sin descripción)" }}</strong><br>
+                            <small class="text-muted">
+                                Documento del {{ doc.fecha_estudio|date:"d/m/Y" }}
+                            </small>
+                        </div>
+
+                        <div>
+                            {% if doc.archivo %}
+                                <a href="{{ doc.archivo.url }}" target="_blank" class="btn btn-primary btn-sm">
+                                    Ver Documento
+                                </a>
+                                <a href="{{ doc.archivo.url }}" download class="btn btn-secondary btn-sm">
+                                    Descargar Documento
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Sin archivo adjunto</span>
+                            {% endif %}
+                        </div>
+
+                    </li>
+                {% endfor %}
+
+            </ul>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info mt-4">Aún no hay documentos clínicos cargados.</div>
+    {% endif %}
+
+</div>
+{% endblock %}

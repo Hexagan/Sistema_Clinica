@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Mensajería{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Mensajería</h3>
+        <a href="{% url 'pacientes:nuevo_mensaje' paciente.id %}" class="btn btn-primary">Nuevo mensaje</a>
+    </div>
+
+    {% if mensajes %}
+        <ul class="list-group">
+            {% for m in mensajes %}
+                <li class="list-group-item">
+                    <strong>{{ m.profesional_destino.nombre }}</strong>
+                    Para: {{ m.profesional_destino.nombre }} — <small class="text-muted">{{ m.creado }}</small>
+                    <p class="mb-0 mt-2">{{ m.texto|linebreaks }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">No tenés mensajes enviados.</div>
+    {% endif %}
+</div>
+{% endblock %}

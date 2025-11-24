@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Teleconsultas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3>Teleconsultas</h3>
+
+    <div class="card mb-3 p-3">
+        <h5>Consultas diferidas</h5>
+        <p>Inicie una consulta diferida a través de mensajería (adjunte archivos si lo desea).</p>
+        <a href="{% url 'pacientes:mensajeria' paciente.id %}" class="btn btn-primary">Iniciar consulta diferida</a>
+    </div>
+
+    <div class="card p-3">
+        <h5>Guardia Virtual</h5>
+        <p>Consultorios virtuales disponibles. Se requiere app "Mi hospital" o navegador Chrome.</p>
+        <button class="btn btn-outline-primary">Anunciarme (entrar a guardia)</button>
+    </div>
+</div>
+{% endblock %}

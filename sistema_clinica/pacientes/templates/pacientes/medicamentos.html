@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Mis Medicamentos{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3>Mis Medicamentos</h3>
+
+    {% if recetas %}
+        <ul class="list-group">
+            {% for r in recetas %}
+                <li class="list-group-item">
+                    <!-- estructura de receta hipotética -->
+                    <div>{{ r }}</div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">
+            Su lista de medicamentos se encuentra vacía.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
