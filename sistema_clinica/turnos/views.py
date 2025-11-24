@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Turno, Estado
+from .models import Turno, Estado, Paciente
 from collections import defaultdict
 from profesionales.models import Especialidad, Profesional
 from django.core.serializers.json import DjangoJSONEncoder
@@ -46,7 +46,6 @@ def solicitar_turno(request, paciente_id):
         "profesionales_json": json.dumps(profesionales_data, cls=DjangoJSONEncoder),
         "dias_semana": DIAS_SEMANA,
     }
-
     return render(request, "turnos/solicitar_turno.html", context)
 
 
@@ -93,8 +92,11 @@ def turnos_disponibles(request):
     if profesional_id:
         turnos = turnos.filter(profesional_id=profesional_id)
 
-    if modo and modo != "LIBRE":
-        turnos = turnos.filter(profesional__tipo_consulta=modo)
+    if modo == "PRES":
+        turnos = turnos.filter(modalidad="PRES")
+
+    elif modo == "TELE":
+        turnos = turnos.filter(modalidad="TELE")
 
     if hora_desde:
         turnos = turnos.filter(hora__gte=hora_desde)
@@ -177,36 +179,79 @@ def turnos_disponibles(request):
 
 @transaction.atomic
 def reservar_turno(request):
-
+    # Solo POST permite reservar
     if request.method != "POST":
-        return redirect("turnos:solicitar_turno", paciente_id=request.POST.get("paciente_id") or "")
+        # redirigir a donde vino o al portal si no hay referer
+        return redirect(request.META.get("HTTP_REFERER", "/"))
 
     turno_id = request.POST.get("turno_id")
     paciente_id = request.POST.get("paciente_id")
+    modo = request.POST.get("modo")  # "PRES" o "TELE"
 
-    estado_disponible = Estado.objects.get(pk=1)   # Pendiente
-    estado_confirmado = Estado.objects.get(pk=2)   # Confirmado
-
-    if not turno_id:
-        messages.error(request, "No se seleccionó ningún turno.")
+    if not turno_id or not paciente_id:
+        messages.error(request, "Faltan datos para reservar el turno.")
         return redirect(request.META.get("HTTP_REFERER", "/"))
 
-    turno = Turno.objects.select_for_update().get(pk=turno_id)
+    # Estados (asumo pk: 1 = Disponible, 2 = Confirmado)
+    try:
+        estado_disponible = Estado.objects.get(pk=1)
+    except Estado.DoesNotExist:
+        messages.error(request, "Estado 'Disponible' no configurado en la base.")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
 
-    # sigue disponible?
+    try:
+        estado_confirmado = Estado.objects.get(pk=2)
+    except Estado.DoesNotExist:
+        messages.error(request, "Estado 'Confirmado' no configurado en la base.")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+
+    # Bloqueo optimista: obtener el turno con lock
+    try:
+        turno = Turno.objects.select_for_update().get(pk=turno_id)
+    except Turno.DoesNotExist:
+        messages.error(request, "El turno seleccionado no existe.")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+
+    # Verificar que el turno siga siendo disponible
     if turno.estado != estado_disponible:
         messages.error(request, "El turno ya fue reservado por otro paciente.")
         return redirect(request.META.get("HTTP_REFERER", "/"))
 
-    # Asignar paciente
-    from pacientes.models import Paciente
-    paciente = Paciente.objects.get(pk=paciente_id)
+    # Validar paciente y que pertenezca al usuario
+    try:
+        paciente = Paciente.objects.get(pk=paciente_id)
+    except Paciente.DoesNotExist:
+        messages.error(request, "Paciente no encontrado.")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
 
+    # Si tu flujo exige que el paciente pertenezca al perfil del usuario:
+    if paciente not in request.user.perfil.pacientes.all():
+        messages.error(request, "No tenés permiso para reservar turnos para ese paciente.")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+
+    # Validar modalidad recibida
+    if modo not in ("PRES", "TELE"):
+        messages.error(request, "Modalidad inválida.")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+
+    # Asignar paciente, estado y modalidad
     turno.paciente = paciente
     turno.estado = estado_confirmado
+    turno.modalidad = modo
     turno.save()
 
-    messages.success(request, f"Turno reservado correctamente.")
+    # Si el profesional es híbrido, bloquear/eliminar el turno espejo
+    # (aquí lo marcamos como 'Confirmado' para que deje de aparecer como disponible)
+    if turno.profesional.tipo_consulta == "AMBOS":
+        Turno.objects.filter(
+            profesional=turno.profesional,
+            fecha=turno.fecha,
+            hora=turno.hora
+        ).exclude(id=turno.id).update(estado=estado_confirmado)
+
+    messages.success(request, "Turno reservado correctamente.")
+
+    # Redirigir a pantalla de éxito (ajusta nombres/args según tus urls)
     return redirect("turnos:turno_exitoso", paciente_id=paciente.id, turno_id=turno.id)
 
 
@@ -280,3 +325,20 @@ def ver_turno(request, paciente_id, turno_id):
         "paciente": paciente,
         "turno": turno,
     })
+
+def bloquear_turno_opuesto(self):
+    from turnos.models import Turno
+
+    opuesto = "PRES" if self.modalidad == "TELE" else "TELE"
+
+    turno_opuesto = Turno.objects.filter(
+        profesional=self.profesional,
+        fecha=self.fecha,
+        hora=self.hora,
+        modalidad=opuesto,
+        paciente__isnull=True  # debe ser turno plantilla
+    ).first()
+
+    if turno_opuesto:
+        turno_opuesto.estado = "BLOQUEADO"
+        turno_opuesto.save()

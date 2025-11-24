@@ -8,7 +8,6 @@
 
 <form method="GET" action="{% url 'turnos:turnos_disponibles' %}">
     <input type="hidden" name="paciente_id" value="{{ paciente.id }}">
-    
 
     <!-- ESPECIALIDAD -->
     <div class="mb-3">
@@ -90,108 +89,117 @@
 </form>
 
 <script>
-    console.log(JSON.parse('{{ profesionales_json|escapejs }}'));
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
 
     const profesionales = JSON.parse('{{ profesionales_json|escapejs }}');
-    const espSelect = document.getElementById("especialidad-select");
-    const profSelect = document.getElementById("profesional-select");
-    const modSelect = document.getElementById("modalidad");
 
-    // Modalidades base
-    const modalidadesBase = `
-        <option value="PRES">Presencial</option>
-        <option value="TELE">Teleconsulta</option>
-        <option value="AMBOS">Híbrida</option>
-    `;
+    const espSelect  = document.getElementById("especialidad-select");
+    const profSelect = document.getElementById("profesional-select");
+    const modSelect  = document.getElementById("modalidad");
 
     // Estado inicial
-    profSelect.innerHTML = '<option value="">Cualquiera</option>';
     profSelect.disabled = true;
+    modSelect.disabled  = true;
 
-    modSelect.innerHTML = modalidadesBase;
-    modSelect.disabled = false;
-
-    // ============================================
-    // 1) FILTRAR PROFESIONALES POR ESPECIALIDAD
-    // ============================================
+    // -----------------------------
+    // FILTRAR PROFESIONALES POR ESPECIALIDAD
+    // -----------------------------
     espSelect.addEventListener("change", function () {
 
-        const espId = parseInt(this.value);
+    const espId = parseInt(this.value);
 
-        profSelect.innerHTML = '<option value="">Cualquiera</option>';
+    // Reiniciar profesionales
+    profSelect.innerHTML = '<option value="">Seleccione un profesional</option>';
+    profSelect.disabled = true;
+    modSelect.disabled = true;
 
-        if (isNaN(espId)) {
-            profSelect.disabled = true;
+    if (isNaN(espId)) {
+        return;
+    }
 
-            // reset modalidad
-            modSelect.innerHTML = modalidadesBase;
-            modSelect.disabled = false;
-            return;
-        }
+    const filtrados = profesionales.filter(p => p.especialidad === espId);
 
-        const filtrados = profesionales.filter(p => p.especialidad === espId);
-
-        filtrados.forEach(p => {
-            const opt = document.createElement("option");
-            opt.value = p.id;
-            opt.textContent = p.nombre;
-            opt.dataset.tipo = p.tipo_consulta;  // ← CORRECTO
-            profSelect.appendChild(opt);
-        });
-
-        profSelect.disabled = false;
-
-        // Reset modalidad al cambiar especialidad
-        modSelect.innerHTML = modalidadesBase;
-        modSelect.disabled = false;
+    filtrados.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.nombre;
+        opt.dataset.modalidad = p.modalidad;
+        profSelect.appendChild(opt);
     });
 
-// =============================
-// 2) AJUSTAR MODALIDAD SEGÚN PROFESIONAL
-// =============================
-profSelect.addEventListener("change", function () {
+    profSelect.disabled = false;
+});
+
+    // -----------------------------
+    // BLOQUEAR / DESBLOQUEAR MODALIDAD
+    // -----------------------------
+    profSelect.addEventListener("change", function () {
+
     const profesionalId = parseInt(this.value);
     const prof = profesionales.find(p => p.id === profesionalId);
 
-    modSelect.innerHTML = ""; // limpiar siempre
+    // Reset del select de modalidad
+    modSelect.innerHTML = `
+        <option value="PRES">Presencial</option>
+        <option value="TELE">Teleconsulta</option>
+    `;
+
+    // Borrar hidden previo si existiera
+    const hiddenPrev = document.getElementById("modo_hidden");
+    if (hiddenPrev) hiddenPrev.remove();
 
     if (!prof) {
         modSelect.disabled = true;
         return;
     }
 
-    const modo = prof.modalidad;
-
-    if (modo === "PRES") {
-        modSelect.innerHTML = `<option value="PRES">Presencial</option>`;
-        modSelect.name = "modo";
-    }
-    else if (modo === "TELE") {
-        modSelect.innerHTML = `<option value="TELE">Teleconsulta</option>`;
-        modSelect.name = "modo";
-    }
-    else if (modo === "AMBOS") {
-        modSelect.innerHTML = `<option value="AMBOS">Híbrida</option>`;
-        modSelect.name = "modo";
+    // ===========================
+    // PROFESIONAL HÍBRIDO (AMBOS)
+    // ===========================
+    if (prof.modalidad === "AMBOS") {
+        modSelect.disabled = false;
+        modSelect.value = "PRES";   // ← Autoseleccionamos PRESENCIAL
+        return;
     }
 
-    // ✔️ Bloquear igual
-    modSelect.disabled = (modo !== "AMBOS");
-    });
+    // ===========================
+    // PROFESIONAL SOLO PRESENCIAL
+    // ===========================
+    if (prof.modalidad === "PRES") {
+        modSelect.value = "PRES";
+        modSelect.disabled = true;
 
-    // Validación opcional simple de rango horario
-    document.getElementById("hora_hasta").addEventListener("change", function () {
-        const desde = document.getElementById("hora_desde").value;
-        const hasta = this.value;
+        // Hidden para enviar valor
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.id = "modo_hidden";
+        hidden.name = "modo";
+        hidden.value = "PRES";
+        modSelect.parentNode.appendChild(hidden);
+        return;
+    }
 
-        if (desde && hasta && hasta < desde) {
-            alert("La hora 'hasta' no puede ser anterior a la hora 'desde'.");
-            this.value = "";
-        }
-    });
+    // ===========================
+    // PROFESIONAL SOLO TELECONSULTA
+    // ===========================
+    if (prof.modalidad === "TELE") {
+        modSelect.value = "TELE";
+        modSelect.disabled = true;
+
+        // Hidden para enviar valor
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.id = "modo_hidden";
+        hidden.name = "modo";
+        hidden.value = "TELE";
+        modSelect.parentNode.appendChild(hidden);
+        return;
+    }
 });
 
+
+
+});
 </script>
 
 

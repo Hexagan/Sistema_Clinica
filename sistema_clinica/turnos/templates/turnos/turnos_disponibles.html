@@ -8,11 +8,7 @@
 
 {% block extra_css %}
 
-<pre>
-DÍAS: {{ query.dias }}
-HORA DESDE: {{ query.hora_desde }}
-TURNOS: {{ turnos_por_dia }}
-</pre>
+
 
 <style>
 
@@ -105,6 +101,7 @@ TURNOS: {{ turnos_por_dia }}
     <form method="POST" action="{% url 'turnos:reservar_turno' %}" id="reservarForm">
         {% csrf_token %}
         <input type="hidden" name="paciente_id" value="{{ paciente_id }}">
+        <input type="hidden" name="modo" value="{{ query.modo }}">
 
         <div class="tab-content">
 
@@ -139,11 +136,17 @@ TURNOS: {{ turnos_por_dia }}
                         <!-- ESPECIALIDAD -->
                         <div class="col-esp">
                             <strong>{{ turno.profesional.especialidad.nombre }}</strong>
-                            <span class="text-small-center">{{ turno.profesional.get_modalidad_display }}</span>
+                            <span class="text-small-center">
+                                {% if turno.modalidad %}
+                                    {{ turno.get_modalidad_display }}
+                                {% else %}
+                                    {{ turno.profesional.get_tipo_consulta_display }}
+                                {% endif %}
+                            </span>
                         </div>
 
                         <div class="col-accion">
-                            <button type="submit" class="btn btn-success reservar-btn">
+                            <button type="button" class="btn btn-success reservar-btn">
                                 Reservar
                             </button>
                         </div>
@@ -159,24 +162,46 @@ TURNOS: {{ turnos_por_dia }}
 
 
 <script>
-// UX: seleccionar card hace check al radio
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.card-turno').forEach(card => {
+
+    const cards = document.querySelectorAll('.card-turno');
+
+    cards.forEach(card => {
         card.addEventListener('click', () => {
-            card.querySelector('input[type="radio"]').checked = true;
-            document.querySelectorAll('.card-turno').forEach(c => c.classList.remove('selected'));
+            const radio = card.querySelector('input[type="radio"]');
+            radio.checked = true;
+
+            cards.forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
         });
     });
+
+    // BOTONES reservar dentro de cada card
+    document.querySelectorAll('.reservar-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+
+            const card = btn.closest('.card-turno');
+            const radio = card.querySelector('input[type="radio"]');
+            radio.checked = true;
+
+            cards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+
+            // Enviar formulario una vez marcado el turno
+            document.getElementById("reservarForm").submit();
+        });
+    });
+
+    // Evitar enviar sin turno
+    document.getElementById("reservarForm").addEventListener("submit", e => {
+        if (!document.querySelector("input[name='turno_id']:checked")) {
+            e.preventDefault();
+            alert("Seleccioná un turno para continuar.");
+        }
+    });
 });
 
-// Evitar enviar sin turno
-document.getElementById("reservarForm").addEventListener("submit", e => {
-    if (!document.querySelector("input[name='turno_id']:checked")) {
-        e.preventDefault();
-        alert("Seleccioná un turno para continuar.");
-    }
-});
 </script>
 
 {% endblock %}

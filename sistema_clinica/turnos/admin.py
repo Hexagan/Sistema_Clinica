@@ -15,6 +15,7 @@ class TurnoAdmin(admin.ModelAdmin):
         "estado",
         "fecha",
         "hora",
+        "modalidad",
     )
     search_fields = (
         "paciente__nombre",

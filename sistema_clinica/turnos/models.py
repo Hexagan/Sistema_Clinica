@@ -40,5 +40,14 @@ class Turno(models.Model):
     check_in = models.DateTimeField(null=True, blank=True)
     observaciones = models.TextField(blank=True, null=True)
 
+    modalidad = models.CharField(
+        max_length=10,
+        choices=[
+            ('PRES', 'Presencial'),
+            ('TELE', 'Teleconsulta'),
+        ],
+        default='PRES'
+    )
+
     def __str__(self):
         return f"{self.fecha} {self.hora} - {self.profesional}"
