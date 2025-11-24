@@ -276,21 +276,23 @@ def turnos_historial(request, paciente_id):
 
     historial = []
     for t in turnos:
-        dt = datetime.combine(t.fecha, t.hora)
-        dt = timezone.make_aware(dt)
+        dt = timezone.make_aware(datetime.combine(t.fecha, t.hora))
 
-        if t.estado.pk in (3, 5):  # Atendido o Cancelado
-            historial.append(t)
-        elif t.estado.pk == 2 and dt < ahora:
-            # Confirmado pero ya pasó la fecha
+        # Atendido (3), Cancelado (5), o Confirmado pero vencido (2)
+        if t.estado.pk in (3, 5) or (t.estado.pk == 2 and dt < ahora):
             historial.append(t)
 
-    historial_ordenado = sorted(historial, key=lambda t: (t.fecha, t.hora), reverse=True)
+    # Ordenar por fecha/hora descendente
+    historial_ordenado = sorted(
+        historial,
+        key=lambda t: (t.fecha, t.hora),
+    )
 
     return render(request, "turnos/turnos_historial.html", {
         "paciente": paciente,
         "turnos": historial_ordenado
     })
+
 
 def turnos_agendados(request, paciente_id):
     perfil = request.user.perfil
@@ -311,9 +313,14 @@ def turnos_agendados(request, paciente_id):
         if dt >= ahora:
             turnos_futuros.append(t)
 
+    # ORDENAR MÁS RECIENTE → MÁS ANTIGUO
+    turnos_ordenados = sorted(
+        turnos_futuros,
+        key=lambda t: (t.fecha, t.hora),
+    )
     return render(request, "turnos/turnos_agendados.html", {
         "paciente": paciente,
-        "turnos": turnos_futuros
+        "turnos": turnos_ordenados
     })
 
 def ver_turno(request, paciente_id, turno_id):
@@ -342,3 +349,47 @@ def bloquear_turno_opuesto(self):
     if turno_opuesto:
         turno_opuesto.estado = "BLOQUEADO"
         turno_opuesto.save()
+
+@transaction.atomic
+def cancelar_turno(request, paciente_id, turno_id):
+    perfil = request.user.perfil
+    paciente = perfil.pacientes.get(pk=paciente_id)
+
+    turno = get_object_or_404(Turno, pk=turno_id, paciente=paciente)
+
+    if request.method != "POST":
+        return redirect("turnos:turnos_agendados", paciente_id=paciente_id)
+
+    estado_cancelado = Estado.objects.get(pk=5)  # Cancelado
+    estado_disponible = Estado.objects.get(pk=1)  # Pendiente/Disponible
+
+    # 1) El turno original pasa a CANCELADO
+    turno.estado = estado_cancelado
+    turno.save()
+
+    # 2) Crear un nuevo turno disponible (plantilla)
+    Turno.objects.create(
+        profesional=turno.profesional,
+        fecha=turno.fecha,
+        hora=turno.hora,
+        modalidad=turno.modalidad,  # ← conserva modalidad
+        estado=estado_disponible,
+        paciente=None
+    )
+
+    # 3) Si el profesional es híbrido, también recrear el turno espejo
+    if turno.profesional.tipo_consulta == "AMBOS":
+        modalidades = ["PRES", "TELE"]
+        opuesta = "PRES" if turno.modalidad == "TELE" else "TELE"
+
+        Turno.objects.create(
+            profesional=turno.profesional,
+            fecha=turno.fecha,
+            hora=turno.hora,
+            modalidad=opuesta,
+            estado=estado_disponible,
+            paciente=None
+        )
+
+    messages.success(request, "El turno fue cancelado correctamente.")
+    return redirect("turnos:turnos_agendados", paciente_id=paciente_id)

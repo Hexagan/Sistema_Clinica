@@ -21,10 +21,20 @@
                 </div>
 
                 <!-- BOTÓN A LA DERECHA -->
-                <div>
+                <div class="d-flex gap-2">
+
                     <a href="{% url 'turnos:ver_turno' paciente.id t.id %}" class="btn btn-primary">
                         Detalle de Turno
                     </a>
+
+                    <form method="POST" action="{% url 'turnos:cancelar_turno' paciente.id t.id %}"
+                        onsubmit="return confirm('¿Seguro que querés cancelar este turno?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            Cancelar Turno
+                        </button>
+                    </form>
+
                 </div>
 
             </div>

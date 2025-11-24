@@ -12,5 +12,6 @@ urlpatterns = [
     path('disponibles/', views.turnos_disponibles, name='turnos_disponibles'),
     path('reservar/', views.reservar_turno, name='reservar_turno'),
     path("agendados/<int:paciente_id>", views.turnos_agendados, name="turnos_agendados"),
+    path("<int:paciente_id>/cancelar/<int:turno_id>/", views.cancelar_turno, name="cancelar_turno"),
 
 ]
