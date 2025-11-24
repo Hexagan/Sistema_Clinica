@@ -12,18 +12,33 @@
         <p><strong>Especialidad:</strong> {{ turno.profesional.especialidad.nombre }}</p>
         <p><strong>Fecha:</strong> {{ turno.fecha }}</p>
         <p><strong>Hora:</strong> {{ turno.hora }}</p>
-        <p><strong>Modalidad:</strong> {{ turno.profesional.get_tipo_consulta_display }}</p>
+        <p><strong>Modalidad:</strong> {{ turno.get_modalidad_display }}</p>
         <p><strong>Consultorio:</strong> {{ turno.profesional.consultorio }}</p>
         <p><strong>Piso:</strong> {{ turno.profesional.piso }}</p>
         {% if turno.observaciones %}
             <p><strong>Observaciones:</strong> {{ turno.observaciones }}</p>
         {% endif %}
+        
+        {% if turno.qr_code %}
+        <div class="text-center mt-4">
+            <h5>Código QR del Turno</h5>
+            <img src="data:image/png;base64,{{ turno.qr_code }}"
+                alt="QR del Turno"
+                style="width: 200px; height: 200px;">
+        </div>
+        {% endif %}
     </div>
 
     <div class="text-end mt-3">
-        <a href="{% url 'turnos:turnos_historial' paciente.id %}" class="btn btn-secondary">
-            Volver al historial
-        </a>
+        {% if desde_historial %}
+            <a href="{% url 'turnos:turnos_historial' turno.paciente.id %}" class="btn btn-secondary">
+                Volver al historial
+            </a>
+        {% else %}
+            <a href="{% url 'turnos:turnos_agendados' turno.paciente.id %}" class="btn btn-secondary">
+                Volver a mis turnos
+            </a>
+        {% endif %}
     </div>
 
 </div>

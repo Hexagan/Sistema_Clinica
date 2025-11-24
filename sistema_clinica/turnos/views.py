@@ -1,3 +1,7 @@
+import json
+import qrcode
+import base64
+from io import BytesIO
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Turno, Estado, Paciente
 from collections import defaultdict
@@ -7,7 +11,6 @@ from django.db import transaction
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, time
-import json
 
 # -----------------------------
 # SOLICITAR TURNO
@@ -240,6 +243,19 @@ def reservar_turno(request):
     turno.modalidad = modo
     turno.save()
 
+    # ==========================================
+    # No se puede generar un QR antes porque el QR depende del turno.id, que solo existe al guardar.
+    # ==========================================
+    qr_data = f"TURNO:{turno.id};PACIENTE:{paciente.id};FECHA:{turno.fecha};HORA:{turno.hora}"
+
+    qr_img = qrcode.make(qr_data)
+    buffer = BytesIO()
+    qr_img.save(buffer, format="PNG")
+    qr_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+    turno.qr_code = qr_base64
+    turno.save()
+
     # Si el profesional es híbrido, bloquear/eliminar el turno espejo
     # (aquí lo marcamos como 'Confirmado' para que deje de aparecer como disponible)
     if turno.profesional.tipo_consulta == "AMBOS":
@@ -278,15 +294,17 @@ def turnos_historial(request, paciente_id):
     for t in turnos:
         dt = timezone.make_aware(datetime.combine(t.fecha, t.hora))
 
-        # Atendido (3), Cancelado (5), o Confirmado pero vencido (2)
-        if t.estado.pk in (3, 5) or (t.estado.pk == 2 and dt < ahora):
+        t.es_vencido = False  # atributo agregado dinámicamente
+
+        if t.estado.pk in (3, 5):  # Atendido o Cancelado
             historial.append(t)
 
-    # Ordenar por fecha/hora descendente
-    historial_ordenado = sorted(
-        historial,
-        key=lambda t: (t.fecha, t.hora),
-    )
+        elif t.estado.pk == 2 and dt < ahora:
+            # Confirmado pero ya pasó la fecha
+            t.es_vencido = True
+            historial.append(t)
+
+    historial_ordenado = sorted(historial, key=lambda t: (t.fecha, t.hora))
 
     return render(request, "turnos/turnos_historial.html", {
         "paciente": paciente,
@@ -329,8 +347,9 @@ def ver_turno(request, paciente_id, turno_id):
     turno = get_object_or_404(Turno, id=turno_id, paciente=paciente)
 
     return render(request, "turnos/ver_turno.html", {
-        "paciente": paciente,
-        "turno": turno,
+    "turno": turno,
+    "paciente": turno.paciente,
+    "desde_historial": "historial" in request.GET,
     })
 
 def bloquear_turno_opuesto(self):

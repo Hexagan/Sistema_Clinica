@@ -48,6 +48,14 @@
         <p><strong>Consultorio:</strong> {{ turno.profesional.consultorio }}</p>
         <p><strong>Modalidad:</strong> {{ turno.get_modalidad_display }}</p>
 
+        {% if turno.qr_code %}
+        <div class="text-center mt-3">
+            <h5>Check-in QR</h5>
+            <img src="data:image/png;base64,{{ turno.qr_code }}" 
+                alt="QR del Turno" 
+                style="width: 180px; height: 180px;">
+        </div>
+        {% endif %}
     </div>
 
     <div class="mt-4 text-center">

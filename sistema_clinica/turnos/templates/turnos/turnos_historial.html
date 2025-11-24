@@ -20,11 +20,24 @@
 
                         <p class="mb-1"><strong>Profesional:</strong> {{ t.profesional.nombre }}</p>
                         <p class="mb-1"><strong>Especialidad:</strong> {{ t.profesional.especialidad.nombre }}</p>
-                        <p class="mb-1"><strong>Estado:</strong> {{ t.estado.descripcion }}</p>
+                        <p class="mb-1"><strong>Estado:</strong>
+                            {% if t.es_vencido %}
+                                <span class="badge bg-danger ms-1">Confirmado — Vencido</span>
+
+                            {% elif t.estado.pk == 3 %}
+                                <span class="badge bg-success ms-1">Atendido</span>
+
+                            {% elif t.estado.pk == 5 %}
+                                <span class="badge bg-warning text-dark ms-1">Cancelado</span>
+
+                            {% else %}
+                                <span class="badge bg-secondary ms-1">{{ t.estado.descripcion }}</span>
+                            {% endif %}
+                        </p>
                     </div>
 
                     <div class="mt-3 text-end">
-                        <a href="{% url 'turnos:ver_turno' paciente.id t.id %}" class="btn btn-outline-primary btn-sm">
+                        <a href="{% url 'turnos:ver_turno' paciente.id t.id %}?historial=1" class="btn btn-outline-primary btn-sm">
                             Detalle del Turno
                         </a>
                     </div>
