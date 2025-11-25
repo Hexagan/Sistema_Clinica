@@ -7,7 +7,7 @@ def run():
     # ===================================
     # CONFIGURACIÓN RÁPIDA Y EDITABLE
     # ===================================
-    PACIENTE_ID = 13     # ← Cambialo rápido para probar con otro paciente
+    PACIENTE_ID = 11     
     print(f"📌 Cargando recetas para paciente {PACIENTE_ID}...")
 
     # -----------------------------------
@@ -36,9 +36,13 @@ def run():
 
     prof_martinez = get_prof("Martínez")
     prof_gomez = get_prof("Gómez")
-    prof_garcia = get_prof("García")
+    prof_aguirre = get_prof("Aguirre")
+    prof_torres = get_prof("Torres")
+    prof_silva = get_prof("Silva")
+    prof_aguilar = get_prof("Aguilar")
+    prof_angelo = get_prof("D'Angelo")
 
-    if not (prof_martinez and prof_gomez and prof_garcia):
+    if not (prof_martinez and prof_gomez and prof_aguirre, prof_torres, prof_silva, prof_aguilar, prof_angelo):
         print("⚠ Algunos profesionales no se encontraron. Creá profesionales ejemplo.")
     
     # -----------------------------------
@@ -64,14 +68,35 @@ def run():
             "dosis": "1 tableta",
             "frecuencia": "Una vez por la mañana",
             "descripcion": "Control de presión arterial.",
-            "profesional": prof_garcia,
+            "profesional": prof_aguirre,
         },
         {
             "nombre": "Paracetamol 1 g",
             "dosis": "1 comprimido",
             "frecuencia": "Cada 8 horas según dolor",
             "descripcion": "No exceder 3 g al día.",
-            "profesional": prof_martinez,
+            "profesional": prof_torres,
+        },
+        {
+            "nombre": "Metformina 850 mg",
+            "dosis": "1 comprimido",
+            "frecuencia": "Dos veces al día",
+            "descripcion": "Tomar con desayuno y cena. Controlar niveles de glucemia.",
+            "profesional": prof_silva,
+        },
+        {
+            "nombre": "Losartán 50 mg",
+            "dosis": "1 tableta",
+            "frecuencia": "Una vez al día",
+            "descripcion": "Mantener horario fijo. Usar junto con control periódico de tensión.",
+            "profesional": prof_aguilar,
+        },
+        {
+            "nombre": "Omeprazol 20 mg",
+            "dosis": "1 cápsula",
+            "frecuencia": "Una vez por la mañana",
+            "descripcion": "Tomar en ayunas. No usar más de 14 días sin supervisión médica.",
+            "profesional": prof_angelo,
         },
     ]
 

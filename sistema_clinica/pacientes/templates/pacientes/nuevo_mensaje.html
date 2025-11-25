@@ -9,10 +9,14 @@
         {% csrf_token %}
         <div class="mb-3">
             <label class="form-label">Para (Profesional)</label>
-            <select class="form-select" name="profesional" required>
-                <option value="">Seleccionar profesional...</option>
-                {% for p in profesionales %}
-                    <option value="{{ p.id }}">{{ p.nombre }} — {{ p.especialidad.nombre }}</option>
+            <select name="profesional" class="form-select" required>
+                <option value="">Seleccione un profesional...</option>
+                {% for prof in profesionales %}
+                    <option value="{{ prof.id }}"
+                        {% if prof_preseleccionado == prof.id %}selected{% endif %}
+                    >
+                        {{ prof.nombre }} — {{ prof.especialidad.nombre }}
+                    </option>
                 {% endfor %}
             </select>
         </div>

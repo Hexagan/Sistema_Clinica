@@ -64,7 +64,7 @@
                                 {% endif %}
                             </ul>
 
-                            <a href="{% url 'pacientes:mensajeria' paciente.id %}" 
+                            <a href="{% url 'pacientes:nuevo_mensaje' paciente.id %}?prof={{ r.profesional.id }}" 
                                class="btn btn-outline-primary btn-sm">
                                 Consultar sobre este medicamento
                             </a>

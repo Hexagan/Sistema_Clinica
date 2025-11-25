@@ -238,3 +238,28 @@ body {
     box-shadow: 0 0 25px rgba(25, 135, 84, 0.6) !important;
     transform: scale(1.03);
 }
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    transition: all 0.25s ease;
+}
+.card {
+    transition: all 0.25s ease;
+}
+
+.pro-img-container {
+    overflow: hidden;
+    border-radius: 10px;
+    width: 100px;
+    height: 100px;
+    transition: transform 0.3s ease;
+}
+
+.pro-img-container img {
+    transition: transform 0.3s ease;
+}
+
+.pro-img-container:hover img {
+    transform: scale(1.07);
+}

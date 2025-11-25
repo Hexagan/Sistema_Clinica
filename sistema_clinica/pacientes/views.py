@@ -224,6 +224,13 @@ def nuevo_mensaje(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
     profesionales = Profesional.objects.filter(estado=True).order_by("nombre")
 
+    # --- NUEVO: detectar profesional preseleccionado desde Mis Médicos ---
+    prof_preseleccionado = request.GET.get("prof")  # viene como string
+    if prof_preseleccionado and prof_preseleccionado.isdigit():
+        prof_preseleccionado = int(prof_preseleccionado)
+    else:
+        prof_preseleccionado = None
+
     if request.method == "POST":
         profesional_id = request.POST.get("profesional")
         texto = request.POST.get("texto", "").strip()
@@ -243,7 +250,9 @@ def nuevo_mensaje(request, paciente_id):
         "paciente": paciente,
         "paciente_id": paciente_id,
         "profesionales": profesionales,
+        "prof_preseleccionado": prof_preseleccionado,  # <- pasar al template
     })
+
 
 @login_required
 def estudios(request, paciente_id):
