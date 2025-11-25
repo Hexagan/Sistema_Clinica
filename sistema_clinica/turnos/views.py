@@ -2,6 +2,9 @@ import json
 import qrcode
 import base64
 import re
+import random
+from amenities.models import Beneficio, BeneficioOtorgado
+
 from django.urls import reverse
 from io import BytesIO
 from django.shortcuts import render, get_object_or_404, redirect
@@ -192,7 +195,6 @@ def reservar_turno(request):
 
     turno_id = request.POST.get("turno_id")
     paciente_id = request.POST.get("paciente_id")
-    modo = request.POST.get("modo")  # "PRES" o "TELE"
 
     if not turno_id or not paciente_id:
         messages.error(request, "Faltan datos para reservar el turno.")
@@ -235,10 +237,7 @@ def reservar_turno(request):
         messages.error(request, "No tenés permiso para reservar turnos para ese paciente.")
         return redirect(request.META.get("HTTP_REFERER", "/"))
 
-    # Validar modalidad recibida
-    if modo not in ("PRES", "TELE"):
-        messages.error(request, "Modalidad inválida.")
-        return redirect(request.META.get("HTTP_REFERER", "/"))
+    modo = turno.modalidad
 
     # Asignar paciente, estado y modalidad
     turno.paciente = paciente
@@ -418,12 +417,10 @@ def cancelar_turno(request, paciente_id, turno_id):
     messages.success(request, "El turno fue cancelado correctamente.")
     return redirect("turnos:turnos_agendados", paciente_id=paciente_id)
 
-
 def checkin_qr(request):
     """
     Lee el código QR y muestra una página HTML de confirmación del check-in.
     """
-
     qr_raw = request.GET.get("qr")
 
     if not qr_raw:
@@ -454,7 +451,6 @@ def checkin_qr(request):
             "error": "El turno no existe."
         })
 
-    # Validación de seguridad
     if str(turno.paciente_id) != paciente_id:
         return render(request, "turnos/checkin_confirmado.html", {
             "error": "Este QR no corresponde al paciente del turno.",
@@ -468,7 +464,7 @@ def checkin_qr(request):
     llego_temprano = ahora < dt_turno
 
     # ============================
-    # registrar check-in
+    # registrar check-in y estado
     # ============================
     turno.check_in = ahora
     turno.estado = Estado.objects.get(pk=3)  # Asistido
@@ -483,12 +479,35 @@ def checkin_qr(request):
     )
 
     # ============================
+    # Si llegó temprano: elegir y guardar un beneficio
+    # ============================
+    beneficio_otorgado = None
+    if llego_temprano:
+        # obtener todos los beneficios activos
+        beneficios_activos = list(Beneficio.objects.filter(activo=True))
+        if beneficios_activos:
+            beneficio_elegido = random.choice(beneficios_activos)
+            # Crear registro del beneficio entregado
+            beneficio_otorgado = BeneficioOtorgado.objects.create(
+                turno=turno,
+                paciente=turno.paciente,
+                beneficio=beneficio_elegido
+            )
+            # opcional: marcar notificado=False y enviar notificación aquí (email/push)
+        else:
+            # no hay beneficios configurados
+            beneficio_elegido = None
+    else:
+        beneficio_elegido = None
+
+    # ============================
     # RENDERIZAR PANTALLA HTML
     # ============================
     return render(request, "turnos/checkin_confirmado.html", {
-        "paciente": turno.paciente, 
+        "paciente": turno.paciente,
         "turno": turno,
         "ahora": ahora,
-        "llego_temprano": llego_temprano
-        
+        "llego_temprano": llego_temprano,
+        "beneficio_elegido": beneficio_elegido,
+        "beneficio_otorgado": beneficio_otorgado,
     })

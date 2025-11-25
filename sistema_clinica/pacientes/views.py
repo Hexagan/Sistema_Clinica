@@ -315,11 +315,13 @@ def medicamentos(request, paciente_id):
 def mis_medicos(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
 
-    profesionales = Profesional.objects.filter(estado=True).order_by("nombre")
+    # Profesionales asociados a turnos del paciente
+    profesionales = Profesional.objects.filter(
+        turno__paciente=paciente
+    ).distinct().order_by("nombre")
 
     return render(request, "pacientes/mis_medicos.html", {
         "paciente": paciente,
-        "paciente_id": paciente_id,
         "profesionales": profesionales,
     })
 

@@ -1,15 +1,11 @@
-{% extends "base.html" %}
+{% extends 'amenities/base_amenity.html' %}
+{% load static %}
 
-{% block title %}Talleres de Salud{% endblock %}
-
-{% block content %}
-<h2 class="mb-4">Talleres de Salud</h2>
-
-<div class="card p-4 shadow-sm">
-    <img src="/static/amenities/talleres.jpg" class="img-fluid rounded" style="max-width: 750px; height: auto;">
-    <p class="amenity-text mt-3">
-        Los talleres abarcan actividades grupales como relajación, respiración consciente,
-        mindfulness y prevención integral de la salud.
-    </p>
+{% block amenity_image %}
+<div class="mb-4">
+    <img src="{% static 'amenities/talleres.jpg' %}"
+         alt="Talleres"
+         class="img-fluid rounded shadow"
+         style="max-height: 260px; object-fit: cover; width: 100%;">
 </div>
 {% endblock %}

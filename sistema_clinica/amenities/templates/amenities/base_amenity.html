@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ amenity.nombre }}{% endblock %}
+
+{% block content %}
+<div class="amenity-content">
+
+    <!-- IMAGEN -->
+    {% block amenity_image %}
+    {% endblock %}
+
+    <!-- TITULO -->
+    <h2 class="fw-bold mt-3">{{ amenity.nombre }}</h2>
+
+    <!-- DESCRIPCIÓN -->
+    {% if amenity.descripcion %}
+        <p class="text-muted">{{ amenity.descripcion }}</p>
+    {% endif %}
+
+    <hr>
+
+    <h4 class="mt-3">Beneficios disponibles</h4>
+
+    <div class="row mt-3 g-3">
+        {% for b in beneficios %}
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ b.titulo }}</h5>
+                        <p class="card-text">{{ b.descripcion }}</p>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No hay beneficios activos actualmente.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
