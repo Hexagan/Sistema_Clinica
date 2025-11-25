@@ -3,20 +3,85 @@
 
 {% block content %}
 <div class="container py-4">
-    <h3>Mis Medicamentos</h3>
+
+    <div class="d-flex align-items-center mb-3">
+        <span class="material-symbols-outlined text-primary" style="font-size: 36px;">
+            medication
+        </span>
+        <h3 class="ms-2 mb-0">Mis Medicamentos</h3>
+    </div>
+
+    <!-- Encabezado explicativo -->
+    <div class="alert alert-secondary d-flex align-items-start">
+        <span class="material-symbols-outlined me-2">info</span>
+        <div>
+            <strong>Esta sección muestra únicamente medicamentos cargados por profesionales.</strong><br>
+            Las recetas, indicaciones y ajustes de dosificación deben ser registrados por un médico en su historial clínico.
+            Si considera que falta algún medicamento o receta reciente, puede enviar un mensaje a su profesional desde 
+            <a href="{% url 'pacientes:mensajeria' paciente.id %}">Mensajería</a>.
+        </div>
+    </div>
 
     {% if recetas %}
-        <ul class="list-group">
+        <div class="row g-3">
             {% for r in recetas %}
-                <li class="list-group-item">
-                    <!-- estructura de receta hipotética -->
-                    <div>{{ r }}</div>
-                </li>
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="material-symbols-outlined text-primary me-2">prescriptions</span>
+                                <h5 class="card-title mb-0">{{ r.nombre }}</h5>
+                            </div>
+
+                            {% if r.descripcion %}
+                                <p class="text-muted small">{{ r.descripcion }}</p>
+                            {% endif %}
+
+                            <ul class="list-unstyled small mb-2">
+                                {% if r.dosis %}
+                                <li>
+                                    <strong>Dosis:</strong> {{ r.dosis }}
+                                </li>
+                                {% endif %}
+
+                                {% if r.frecuencia %}
+                                <li>
+                                    <strong>Frecuencia:</strong> {{ r.frecuencia }}
+                                </li>
+                                {% endif %}
+
+                                {% if r.profesional %}
+                                <li>
+                                    <strong>Indicado por:</strong> {{ r.profesional.nombre }}
+                                </li>
+                                {% endif %}
+
+                                {% if r.fecha %}
+                                <li>
+                                    <strong>Fecha:</strong> {{ r.fecha }}
+                                </li>
+                                {% endif %}
+                            </ul>
+
+                            <a href="{% url 'pacientes:mensajeria' paciente.id %}" 
+                               class="btn btn-outline-primary btn-sm">
+                                Consultar sobre este medicamento
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
+
     {% else %}
-        <div class="alert alert-info">
-            Su lista de medicamentos se encuentra vacía.
+        <div class="alert alert-info d-flex align-items-start">
+            <span class="material-symbols-outlined me-2">medical_information</span>
+            <div>
+                <strong>Su lista de medicamentos está vacía.</strong><br>
+                Aún no hay recetas activas cargadas por profesionales en su historial clínico.
+            </div>
         </div>
     {% endif %}
 </div>

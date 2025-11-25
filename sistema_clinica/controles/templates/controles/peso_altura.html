@@ -30,9 +30,9 @@
 
         <div class="mb-3">
             <label class="form-label">Fecha*</label>
-            <input type="date" name="fecha" class="form-control" required>
+            <input type="date" name="fecha" class="form-control" 
+                value="{{ today|date:'Y-m-d' }}" required>
         </div>
-
         <hr>
 
         <h4>Índice de masa corporal (IMC)</h4>

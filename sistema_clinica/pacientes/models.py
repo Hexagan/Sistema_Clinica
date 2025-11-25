@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from profesionales.models import Profesional
 
 class Paciente(models.Model):
 
@@ -69,4 +70,21 @@ class Estudio(models.Model):
 
     def __str__(self):
         return f"Estudio {self.id} - {self.paciente} ({self.fecha_estudio})"
-    
+
+class Receta(models.Model):
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name="recetas")
+    profesional = models.ForeignKey(Profesional, on_delete=models.PROTECT, related_name="recetas_emitidas")
+
+    nombre = models.CharField(max_length=100)
+    dosis = models.CharField(max_length=100, blank=True)
+    frecuencia = models.CharField(max_length=100, blank=True)
+    descripcion = models.TextField(blank=True)
+
+    fecha = models.DateField(auto_now_add=True)
+    activa = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"{self.nombre} - {self.paciente.nombre}"

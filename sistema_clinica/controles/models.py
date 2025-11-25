@@ -8,6 +8,7 @@ class PesoAltura(models.Model):
     altura = models.FloatField()  # en metros
     peso = models.FloatField()    # en kg
     fecha = models.DateField()
+    hora = models.TimeField(auto_now_add=True)  # se completa sola
     imc = models.FloatField(null=True, blank=True)
 
     def calcular_imc(self):

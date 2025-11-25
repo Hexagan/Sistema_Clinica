@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Paciente, Mensaje, Estudio
+from .models import Paciente, Mensaje, Estudio, Receta
 
 @admin.register(Paciente)
 class PacienteAdmin(admin.ModelAdmin):
@@ -34,3 +34,8 @@ class EstudioAdmin(admin.ModelAdmin):
     tiene_archivo.boolean = True
     tiene_archivo.short_description = "Archivo"
 
+@admin.register(Receta)
+class RecetaAdmin(admin.ModelAdmin):
+    list_display = ("nombre", "paciente", "profesional", "fecha", "activa")
+    list_filter = ("activa", "profesional", "fecha")
+    search_fields = ("nombre", "paciente__nombre", "profesional__nombre")

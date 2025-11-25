@@ -304,7 +304,7 @@ def cargar_estudio(request, paciente_id):
 def medicamentos(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
 
-    recetas = []  # cuando agregues modelo real
+    recetas = paciente.recetas.filter(activa=True).select_related("profesional")
 
     return render(request, "pacientes/medicamentos.html", {
         "paciente": paciente,

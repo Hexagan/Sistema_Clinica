@@ -27,11 +27,13 @@
         <div class="row">
             <div class="col mb-3">
                 <label class="form-label">Fecha*</label>
-                <input type="date" name="fecha" class="form-control" required>
+                <input type="date" name="fecha" class="form-control"
+                    value="{{ today|date:'Y-m-d' }}" required>
             </div>
             <div class="col mb-3">
                 <label class="form-label">Hora*</label>
-                <input type="time" name="hora" class="form-control" required>
+                <input type="time" name="hora" class="form-control"
+                    value="{{ now|date:'H:i' }}" required>
             </div>
         </div>
 
