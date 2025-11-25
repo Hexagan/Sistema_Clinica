@@ -18,6 +18,7 @@ class BeneficioAdmin(admin.ModelAdmin):
 
 @admin.register(BeneficioOtorgado)
 class BeneficioOtorgadoAdmin(admin.ModelAdmin):
+    raw_id_fields = ("turno", "paciente", "beneficio")
     list_display = ("beneficio", "paciente", "turno", "timestamp", "notificado")
     list_filter = ("beneficio__amenity", "notificado")
     readonly_fields = ("timestamp",)

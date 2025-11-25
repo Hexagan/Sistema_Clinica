@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ amenity.nombre }}{% endblock %}
 
@@ -9,7 +10,7 @@
     {% block amenity_image %}
     {% endblock %}
 
-    <!-- TITULO -->
+    <!-- TÍTULO -->
     <h2 class="fw-bold mt-3">{{ amenity.nombre }}</h2>
 
     <!-- DESCRIPCIÓN -->
@@ -23,14 +24,26 @@
 
     <div class="row mt-3 g-3">
         {% for b in beneficios %}
-            <div class="col-md-6">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ b.titulo }}</h5>
-                        <p class="card-text">{{ b.descripcion }}</p>
-                    </div>
+        <div class="col-md-6">
+
+            <div class="card h-100 shadow-sm position-relative
+                {% if beneficio_otorgado and beneficio_otorgado.beneficio.id == b.id %}
+                    card-beneficio-obtenido
+                {% endif %}
+            ">
+                {% if beneficio_otorgado and beneficio_otorgado.beneficio.id == b.id %}
+                <span class="badge bg-success position-absolute top-0 end-0 m-2">
+                    Obtenido
+                </span>
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ b.titulo }}</h5>
+                    <p class="card-text">{{ b.descripcion }}</p>
                 </div>
             </div>
+
+        </div>
         {% empty %}
             <p>No hay beneficios activos actualmente.</p>
         {% endfor %}

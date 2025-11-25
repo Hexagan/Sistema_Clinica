@@ -225,3 +225,16 @@ body {
 .amenity-text {
     margin-top: 15px;
 }
+
+.card-beneficio-obtenido {
+    border: 3px solid #198754 !important;       /* Verde Bootstrap */
+    background-color: #e8f5e9 !important;       /* Verde claro suave */
+    box-shadow: 0 0 15px rgba(25, 135, 84, 0.4) !important;
+    transform: scale(1.02);
+    transition: all 0.25s ease;
+}
+
+.card-beneficio-obtenido:hover {
+    box-shadow: 0 0 25px rgba(25, 135, 84, 0.6) !important;
+    transform: scale(1.03);
+}
