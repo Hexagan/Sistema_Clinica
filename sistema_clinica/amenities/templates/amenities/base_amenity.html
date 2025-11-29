@@ -27,11 +27,11 @@
         <div class="col-md-6">
 
             <div class="card h-100 shadow-sm position-relative
-                {% if beneficio_otorgado and beneficio_otorgado.beneficio.id == b.id %}
+                {% if b.id in beneficios_otorgados_ids %}
                     card-beneficio-obtenido
                 {% endif %}
             ">
-                {% if beneficio_otorgado and beneficio_otorgado.beneficio.id == b.id %}
+                {% if b.id in beneficios_otorgados_ids %}
                 <span class="badge bg-success position-absolute top-0 end-0 m-2">
                     Obtenido
                 </span>
@@ -44,8 +44,6 @@
             </div>
 
         </div>
-        {% empty %}
-            <p>No hay beneficios activos actualmente.</p>
         {% endfor %}
     </div>
 

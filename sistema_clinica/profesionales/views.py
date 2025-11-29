@@ -1,25 +1,50 @@
-from django.shortcuts import render, get_object_or_404
+# profesionales/views.py
+from django.views.generic import ListView, DetailView
+from django.shortcuts import get_object_or_404
 from .models import Profesional, Especialidad
 
-def lista_profesionales(request):
-    profesionales = Profesional.objects.select_related('especialidad').all()
-    return render(request, 'profesionales/lista_profesionales.html', {
-        'profesionales': profesionales
-    })
+
+# ======================================================
+# 1) LISTA DE PROFESIONALES
+# ======================================================
+class ListaProfesionalesView(ListView):
+    model = Profesional
+    template_name = "profesionales/lista_profesionales.html"
+    context_object_name = "profesionales"
+
+    def get_queryset(self):
+        return (
+            Profesional.objects
+            .select_related("especialidad")
+            .prefetch_related("servicios")
+            .all()
+        )
 
 
-def detalle_profesional(request, profesional_id):
-    profesional = get_object_or_404(
-        Profesional.objects.select_related('especialidad').prefetch_related('servicios'),
-        id=profesional_id
-    )
-    return render(request, 'profesionales/detalle_profesional.html', {
-        'profesional': profesional
-    })
+# ======================================================
+# 2) DETALLE DE PROFESIONAL
+# ======================================================
+class DetalleProfesionalView(DetailView):
+    model = Profesional
+    template_name = "profesionales/detalle_profesional.html"
+    context_object_name = "profesional"
+    pk_url_kwarg = "profesional_id"
+
+    def get_queryset(self):
+        return (
+            Profesional.objects
+            .select_related("especialidad")
+            .prefetch_related("servicios")
+        )
 
 
-def lista_especialidades(request):
-    especialidades = Especialidad.objects.all()
-    return render(request, 'profesionales/lista_especialidades.html', {
-        'especialidades': especialidades
-    })
+# ======================================================
+# 3) LISTA DE ESPECIALIDADES
+# ======================================================
+class ListaEspecialidadesView(ListView):
+    model = Especialidad
+    template_name = "profesionales/lista_especialidades.html"
+    context_object_name = "especialidades"
+
+    def get_queryset(self):
+        return Especialidad.objects.all()

@@ -13,7 +13,7 @@
         </div>
 
         <div class="text-center mt-4">
-            <a href="{% url 'usuarios:portal_paciente' paciente.id %}" class="btn btn-secondary w-100">Volver al inicio</a>
+            <a href="{% url 'pacientes:portal_paciente' paciente.id %}" class="btn btn-secondary w-100">Volver al inicio</a>
         </div>
 
     {% else %}
@@ -25,7 +25,6 @@
         <div class="card p-4 shadow-sm">
 
             <p><strong>Paciente:</strong> {{ turno.paciente }}</p>
-
             <p><strong>Profesional:</strong> {{ turno.profesional.nombre }}</p>
             <p><strong>Especialidad:</strong> {{ turno.profesional.especialidad.nombre }}</p>
 
@@ -33,7 +32,6 @@
 
             <p><strong>Fecha del turno:</strong> {{ turno.fecha }}</p>
             <p><strong>Hora del turno:</strong> {{ turno.hora }}</p>
-
             <p><strong>Hora del check-in:</strong> {{ ahora|date:"H:i:s" }}</p>
 
             {% if llego_temprano %}
@@ -66,7 +64,7 @@
         </div>
 
         <div class="text-center mt-4">
-            <a href="{% url 'usuarios:portal_paciente' paciente.id %}" class="btn btn-primary w-100">Volver al inicio</a>
+            <a href="{% url 'pacientes:portal_paciente' paciente.id %}" class="btn btn-primary w-100">Volver al inicio</a>
         </div>
 
     {% endif %}

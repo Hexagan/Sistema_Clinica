@@ -1,4 +1,4 @@
-import os
+"""import os
 import calendar
 from django.db.models.functions import TruncMonth
 from django.shortcuts import render, redirect, get_object_or_404
@@ -10,6 +10,9 @@ from django.contrib import messages
 from django.utils.translation import activate
 
 def cargar_paciente(request, paciente_id):
+    if not request.user.is_authenticated:
+        raise PermissionError("Usuario no autenticado.")
+    
     perfil = request.user.perfil
     return perfil.pacientes.get(pk=paciente_id)
 
@@ -109,37 +112,6 @@ def buscar_turnos(request):
         "especialidades": especialidades,
         "profesionales": profesionales,
     })
-
-
-"""@login_required
-def resultados_turnos(request):
-    especialidad_id = request.GET.get("especialidad")
-    profesional_id = request.GET.get("profesional")
-    tipo = request.GET.get("tipo")
-    fecha = request.GET.get("fecha")
-
-    profesionales = Profesional.objects.filter(especialidad_id=especialidad_id)
-
-    if profesional_id:
-        profesionales = profesionales.filter(id=profesional_id)
-
-    if tipo != "AMBOS":
-        profesionales = profesionales.filter(tipo_consulta=tipo)
-
-    resultados = []
-
-    for prof in profesionales:
-        horarios_disponibles = obtener_disponibilidad(prof, fecha)
-        for h in horarios_disponibles:
-            resultados.append({
-                "fecha": fecha,
-                "hora": h,
-                "profesional": prof,
-                "especialidad": prof.especialidad,
-                "tipo": prof.tipo_consulta
-            })
-
-    return render(request, "lista_turnos.html", {"resultados": resultados}) """
 
 def indicaciones(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
@@ -310,6 +282,7 @@ def cargar_estudio(request, paciente_id):
         "paciente_id": paciente_id,
     })
 
+@login_required
 def medicamentos(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
 
@@ -321,6 +294,7 @@ def medicamentos(request, paciente_id):
         "recetas": recetas,
     })
 
+@login_required
 def mis_medicos(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
 
@@ -334,6 +308,7 @@ def mis_medicos(request, paciente_id):
         "profesionales": profesionales,
     })
 
+@login_required
 def teleconsultas(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
 
@@ -342,32 +317,36 @@ def teleconsultas(request, paciente_id):
         "paciente_id": paciente_id,
     })
 
-
+@login_required
 def cartilla(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
-    query = request.GET.get("q", "")
-    especialidad = request.GET.get("especialidad", "")
+
+    # pueden ser vacíos
+    filtro_nombre = request.GET.get("nombre", "")
+    filtro_especialidad = request.GET.get("especialidad", "")
 
     profesionales = Profesional.objects.all()
 
-    if query:
+    if filtro_nombre:
         profesionales = profesionales.filter(
-            Q(nombre__icontains=query) | Q(email__icontains=query)
+            Q(nombre__icontains=filtro_nombre) |
+            Q(email__icontains=filtro_nombre)
         )
 
-    if especialidad:
+    if filtro_especialidad:
         profesionales = profesionales.filter(
-            especialidad__nombre__icontains=especialidad
+            especialidad__nombre__icontains=filtro_especialidad
         )
 
     return render(request, "pacientes/cartilla.html", {
         "paciente": paciente,
         "paciente_id": paciente_id,
         "profesionales": profesionales,
-        "q": query,
-        "especialidad": especialidad,
+        "nombre": filtro_nombre,
+        "especialidad": filtro_especialidad,
     })
 
+@login_required
 def consultas_gestiones(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
 
@@ -397,34 +376,31 @@ def mensaje_detalle(request, paciente_id, mensaje_id):
     })
 
 
-
+@login_required
 def mi_diario(request, paciente_id):
     paciente = cargar_paciente(request, paciente_id)
-    # Activar español 
-    activate('es')
+    activate("es")  
+
+    # Obtener filtro elegido (fecha o descripcion)
+    ordenar = request.GET.get("ordenar", "fecha")
 
     estudios = Estudio.objects.filter(paciente=paciente)
 
-    # Obtener parámetro del radio button
-    ordenar = request.GET.get("ordenar", "fecha")
-
+    # Ordenar según el radio button
     if ordenar == "descripcion":
-        estudios = estudios.order_by("descripcion")
+        estudios = estudios.order_by("observaciones")
     else:
         estudios = estudios.order_by("-fecha_estudio")
 
-    # Agrupado por fecha (solo para visualización)
+    # Agrupar por mes y año
     grupos = {}
     for doc in estudios:
-        mes_ano = doc.fecha_estudio.strftime("%B %Y")  # ej: "diciembre 2023"
-        mes_ano = mes_ano.capitalize() 
+        mes_ano = doc.fecha_estudio.strftime("%B %Y").capitalize()
         grupos.setdefault(mes_ano, []).append(doc)
 
-    context = {
-        "ordenar": ordenar,
-        "grupos": grupos,
+    return render(request, "pacientes/mi_diario.html", {
         "paciente": paciente,
         "paciente_id": paciente_id,
-    }
-    
-    return render(request, "pacientes/mi_diario.html", context)
+        "ordenar": ordenar,
+        "grupos": grupos,
+    })"""

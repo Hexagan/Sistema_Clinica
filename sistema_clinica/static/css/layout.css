@@ -108,16 +108,8 @@ body {
     display: none;
 }
 
-.day-chip input:checked + * {
-    /* ignorado en HTML estándar, lo corregimos abajo */
-}
-
 .day-chip input:checked ~ span {
     font-weight: bold;
-}
-
-.day-chip input:checked {
-    /* fallback */
 }
 
 .day-chip input:checked + label {
@@ -125,13 +117,11 @@ body {
     color: white;
 }
 
-/* La forma correcta: usar :has() si el navegador lo soporta */
 .day-chip:has(input:checked) {
     background: #0d6efd;
     color: white;
     border-color: #0d6efd;
 }
-
 
 .radio-wrapper {
     width: 48px;

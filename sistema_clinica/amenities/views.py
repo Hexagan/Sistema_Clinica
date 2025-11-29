@@ -1,77 +1,80 @@
-from django.shortcuts import render, get_object_or_404
+# amenities/views.py
+from django.views.generic import TemplateView
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from pacientes.models import Paciente
-from .models import Amenity, Beneficio, BeneficioOtorgado
+from .models import Amenity, BeneficioOtorgado
 
 
-def cargar_paciente(request, paciente_id):
-    perfil = request.user.perfil
-    return perfil.pacientes.get(pk=paciente_id)
+# ----------------------------------------------------------
+# Mixin para cargar paciente del perfil del usuario
+# ----------------------------------------------------------
+class PacienteFromPerfilMixin(LoginRequiredMixin):
+
+    def get_paciente(self, paciente_id):
+        perfil = self.request.user.perfil
+        return perfil.pacientes.get(pk=paciente_id)
 
 
-def render_amenity(request, paciente_id, amenity_nombre, template_name):
-    """Vista genérica para cualquier amenity."""
+# ----------------------------------------------------------
+# Vista genérica para un Amenity
+# ----------------------------------------------------------
 
-    paciente = cargar_paciente(request, paciente_id)
+class AmenityBaseView(LoginRequiredMixin, TemplateView):
+    template_name = "amenities/base_amenity.html"  
+    amenity_nombre = None 
 
-    # Obtener la amenity por nombre
-    amenity = get_object_or_404(Amenity, nombre=amenity_nombre)
+    def get_context_data(self, paciente_id, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-    # Beneficios activos
-    beneficios = amenity.beneficios.filter(activo=True)
+        perfil = self.request.user.perfil
+        paciente = perfil.pacientes.get(pk=paciente_id)
 
-    # Beneficio otorgado para este amenity (si existe)
-    beneficio_otorgado = (
-        BeneficioOtorgado.objects.filter(
-            paciente=paciente,
-            beneficio__amenity=amenity
+        amenity = get_object_or_404(Amenity, nombre=self.amenity_nombre)
+
+        beneficios = amenity.beneficios.filter(activo=True)
+
+        beneficios_otorgados = list(
+            BeneficioOtorgado.objects.filter(
+                paciente=paciente,
+                beneficio__amenity=amenity
+            ).select_related("beneficio")
         )
-        .select_related("beneficio")
-        .first()
-    )
 
-    return render(request, template_name, {
-        "paciente": paciente,
-        "amenity": amenity,
-        "beneficios": beneficios,
-        "beneficio_otorgado": beneficio_otorgado,
-    })
+        # Lista de IDs de beneficios obtenidos
+        beneficios_otorgados_ids = {b.beneficio.id for b in beneficios_otorgados}
 
+        context.update({
+            "paciente": paciente,
+            "amenity": amenity,
+            "beneficios": beneficios,
+            "beneficios_otorgados_ids": beneficios_otorgados_ids,
+        })
 
-# ============================================================
-# VISTAS ESPECÍFICAS
-# ============================================================
-
-def gimnasio(request, paciente_id):
-    return render_amenity(
-        request,
-        paciente_id,
-        "Gimnasio",
-        "amenities/gimnasio.html"
-    )
+        return context
 
 
-def kiosco(request, paciente_id):
-    return render_amenity(
-        request,
-        paciente_id,
-        "Kiosco y Nutrición",
-        "amenities/kiosco.html"
-    )
+
+# ----------------------------------------------------------
+# VISTAS ESPECÍFICAS (solo definen nombre y template)
+# ----------------------------------------------------------
+
+class GimnasioView(AmenityBaseView):
+    amenity_nombre = "Gimnasio"
+    template_name = "amenities/gimnasio.html"
 
 
-def nutricion(request, paciente_id):
-    return render_amenity(
-        request,
-        paciente_id,
-        "Relajación y Mindfulness",
-        "amenities/nutricion.html"
-    )
+class KioscoView(AmenityBaseView):
+    amenity_nombre = "Kiosco y Nutrición"
+    template_name = "amenities/kiosco.html"
 
 
-def talleres(request, paciente_id):
-    return render_amenity(
-        request,
-        paciente_id,
-        "Talleres y Asesoramiento de Salud",
-        "amenities/talleres.html"
-    )
+class NutricionView(AmenityBaseView):
+    amenity_nombre = "Relajación y Mindfulness"
+    template_name = "amenities/nutricion.html"
+
+
+class TalleresView(AmenityBaseView):
+    amenity_nombre = "Talleres y Asesoramiento de Salud"
+    template_name = "amenities/talleres.html"

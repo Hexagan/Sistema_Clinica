@@ -24,7 +24,7 @@
         </div>
 
         <div class="topbar-center position-absolute start-50 translate-middle-x">
-            <a href="{% url 'usuarios:portal_paciente' paciente.id %}" 
+            <a href="{% url 'pacientes:portal_paciente' paciente.id %}" 
                 class="d-flex align-items-center gap-1 text-white text-decoration-none">
                 <span class="material-symbols-outlined">local_hospital</span>
                 Clínica Sabor Vital
@@ -69,7 +69,7 @@
     <!-- SIDEBAR -->
     <div class="sidebar">
         
-        <a href="{% url 'usuarios:portal_paciente' paciente.id %}">
+        <a href="{% url 'pacientes:portal_paciente' paciente.id %}">
             <span class="material-symbols-outlined">home</span>
             <span class="text">Inicio</span>
         </a>

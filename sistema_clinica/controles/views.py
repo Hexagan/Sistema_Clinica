@@ -1,123 +1,152 @@
-from django.shortcuts import render, redirect, get_object_or_404
+# controles/views.py
+
+from datetime import datetime, date
+from django.shortcuts import render, redirect
+from django.views import View
+
+from pacientes.mixins import PacienteAccessMixin
 from pacientes.models import Paciente
-from datetime import date, datetime
 
 from .models import (
-    PesoAltura, Temperatura, FrecuenciaCardiaca, PresionArterial,
-    Glucemia, FrecuenciaRespiratoria, Disnea, SaturacionOxigeno, Indicaciones
+    PesoAltura, Temperatura, FrecuenciaCardiaca,
+    PresionArterial, Glucemia, FrecuenciaRespiratoria,
+    Disnea, SaturacionOxigeno, Indicaciones
 )
 
+from .mixins import PacienteAccessMixin
 
-# ----------------------------------------  
-# Utilidad común
-# ----------------------------------------
-def get_paciente(paciente_id):
-    return get_object_or_404(Paciente, id=paciente_id)
+# ============================================================
+#   1. PESO Y ALTURA
+# ============================================================
 
-# ----------------------------------------
-# 1. Peso y altura
-# ----------------------------------------
-def peso_altura(request, paciente_id):
-    paciente = get_paciente(paciente_id)
+class PesoAlturaView(PacienteAccessMixin, View):
+    template_name = "controles/peso_altura.html"
+    model = PesoAltura
+    
+    def get(self, request, paciente_id):
+        paciente = self.get_paciente()
 
-    # Traer el último registro real por fecha + hora
-    ultimo = PesoAltura.objects.filter(
-        paciente_id=paciente_id
-    ).order_by('-fecha', '-hora').first()
+        ultimo = self.model.objects.filter(
+            paciente_id=paciente_id
+        ).order_by("-fecha", "-hora").first()
 
-    if request.method == "POST":
+        return render(request, self.template_name, {
+            "ultimo": ultimo,
+            "paciente": paciente,
+            "today": date.today(),
+            "now": datetime.now(),
+        })
+    
+    def post(self, request, paciente_id):
         PesoAltura.objects.create(
             paciente_id=paciente_id,
             altura=float(request.POST["altura"]),
             peso=float(request.POST["peso"]),
-            fecha=request.POST["fecha"],
-            # hora se autogenera
+            fecha=request.POST["fecha"]
         )
         return redirect("controles:peso_altura", paciente_id=paciente_id)
 
-    return render(request, "controles/peso_altura.html", {
-        "ultimo": ultimo,
-        "paciente": paciente,
-        "today": date.today(),
-        "now": datetime.now(),
-    })
 
-# ----------------------------------------
-# 2. Temperatura
-# ----------------------------------------
-def temperatura(request, paciente_id):
-    paciente = get_paciente(paciente_id)
-    ultimo = Temperatura.objects.filter(paciente_id=paciente_id).order_by('-fecha', '-hora').first()
+# ============================================================
+#   2. TEMPERATURA
+# ============================================================
 
-    if request.method == "POST":
-        fecha_str = request.POST["fecha"]
-        hora_str = request.POST["hora"]
+class TemperaturaView(PacienteAccessMixin, View):
+    template_name = "controles/temperatura.html"
+    model = Temperatura
+    
+    def get(self, request, paciente_id):
+        paciente = self.get_paciente()
 
+        ultimo = self.model.objects.filter(
+            paciente_id=paciente_id
+        ).order_by("-fecha", "-hora").first()
+
+        return render(request, self.template_name, {
+            "ultimo": ultimo,
+            "paciente": paciente,
+            "today": date.today(),
+            "now": datetime.now(),
+        })
+
+    def post(self, request, paciente_id):
+        fecha = request.POST["fecha"]
+        hora = request.POST["hora"]
         ahora = datetime.now()
-        hora_con_segundos = hora_str + f":{ahora.second:02d}"
 
         Temperatura.objects.create(
             paciente_id=paciente_id,
             valor=request.POST["valor"],
             zona=request.POST.get("zona"),
-            fecha=fecha_str,
-            hora=hora_con_segundos
-            
+            fecha=fecha,
+            hora=f"{hora}:{ahora.second:02d}"
         )
         return redirect("controles:temperatura", paciente_id=paciente_id)
 
-    return render(request, "controles/temperatura.html", {
-        "ultimo": ultimo,
-        "paciente": paciente,
-        "today": date.today(),
-        "now": datetime.now(),
-    })
 
+# ============================================================
+#   3. FRECUENCIA CARDIACA
+# ============================================================
 
-# ----------------------------------------
-# 3. Frecuencia cardiaca
-# ----------------------------------------
-def frecuencia_cardiaca(request, paciente_id):
-    paciente = get_paciente(paciente_id)
-    ultimo = FrecuenciaCardiaca.objects.filter(paciente_id=paciente_id).order_by('-fecha', '-hora').first()
+class FrecuenciaCardiacaView(PacienteAccessMixin, View):
+    template_name = "controles/frecuencia_cardiaca.html"
+    model = FrecuenciaCardiaca
+    
+    def get(self, request, paciente_id):
+        paciente = self.get_paciente()
 
-    if request.method == "POST":
-        fecha_str = request.POST["fecha"]
-        hora_str = request.POST["hora"]
+        ultimo = self.model.objects.filter(
+            paciente_id=paciente_id
+        ).order_by("-fecha", "-hora").first()
 
+        return render(request, self.template_name, {
+            "ultimo": ultimo,
+            "paciente": paciente,
+            "today": date.today(),
+            "now": datetime.now(),
+        })
+
+    def post(self, request, paciente_id):
+        fecha = request.POST["fecha"]
+        hora = request.POST["hora"]
         ahora = datetime.now()
-        hora_con_segundos = hora_str + f":{ahora.second:02d}"
 
         FrecuenciaCardiaca.objects.create(
             paciente_id=paciente_id,
             valor=request.POST["valor"],
             metodo=request.POST["metodo"],
-            fecha=fecha_str,
-            hora=hora_con_segundos   # ahora tiene hh:mm:ss
+            fecha=fecha,
+            hora=f"{hora}:{ahora.second:02d}"
         )
         return redirect("controles:frecuencia_cardiaca", paciente_id=paciente_id)
 
-    return render(request, "controles/frecuencia_cardiaca.html", {
-        "ultimo": ultimo,
-        "paciente": paciente,
-        "today": date.today(),
-        "now": datetime.now(),
-    })
 
+# ============================================================
+#   4. PRESIÓN ARTERIAL
+# ============================================================
 
-# ----------------------------------------
-# 4. Presión arterial
-# ----------------------------------------
-def presion_arterial(request, paciente_id):
-    paciente = get_paciente(paciente_id)
-    ultimo = PresionArterial.objects.filter(paciente_id=paciente_id).order_by('-fecha', '-hora').first()
+class PresionArterialView(PacienteAccessMixin, View):
+    template_name = "controles/presion_arterial.html"
+    model = PresionArterial
+    
+    def get(self, request, paciente_id):
+        paciente = self.get_paciente()
 
-    if request.method == "POST":
-        fecha_str = request.POST["fecha"]
-        hora_str = request.POST["hora"]
+        ultimo = self.model.objects.filter(
+            paciente_id=paciente_id
+        ).order_by("-fecha", "-hora").first()
 
+        return render(request, self.template_name, {
+            "ultimo": ultimo,
+            "paciente": paciente,
+            "today": date.today(),
+            "now": datetime.now(),
+        })
+
+    def post(self, request, paciente_id):
+        fecha = request.POST["fecha"]
+        hora = request.POST["hora"]
         ahora = datetime.now()
-        hora_con_segundos = hora_str + f":{ahora.second:02d}"
 
         PresionArterial.objects.create(
             paciente_id=paciente_id,
@@ -126,147 +155,171 @@ def presion_arterial(request, paciente_id):
             zona=request.POST["zona"],
             tensiometro=request.POST["tensiometro"],
             tomado_por=request.POST["tomado_por"],
-            fecha=fecha_str,
-            hora=hora_con_segundos
+            fecha=fecha,
+            hora=f"{hora}:{ahora.second:02d}"
         )
         return redirect("controles:presion_arterial", paciente_id=paciente_id)
 
-    return render(request, "controles/presion_arterial.html", {
-        "ultimo": ultimo,
-        "paciente": paciente,
-        "today": date.today(),
-        "now": datetime.now(),
-    })
 
+# ============================================================
+#   5. GLUCEMIA
+# ============================================================
 
-# ----------------------------------------
-# 5. Glucemia
-# ----------------------------------------
-def glucemia(request, paciente_id):
-    paciente = get_paciente(paciente_id)
-    ultimo = Glucemia.objects.filter(paciente_id=paciente_id).order_by('-fecha', '-hora').first()
+class GlucemiaView(PacienteAccessMixin, View):
+    template_name = "controles/glucemia.html"
+    model = Glucemia
+    
+    def get(self, request, paciente_id):
+        paciente = self.get_paciente()
 
-    if request.method == "POST":
-        fecha_str = request.POST["fecha"]
-        hora_str = request.POST["hora"]
+        ultimo = self.model.objects.filter(
+            paciente_id=paciente_id
+        ).order_by("-fecha", "-hora").first()
 
+        return render(request, self.template_name, {
+            "ultimo": ultimo,
+            "paciente": paciente,
+            "today": date.today(),
+            "now": datetime.now(),
+        })
+
+    def post(self, request, paciente_id):
+        fecha = request.POST["fecha"]
+        hora = request.POST["hora"]
         ahora = datetime.now()
-        hora_con_segundos = hora_str + f":{ahora.second:02d}"
 
         Glucemia.objects.create(
             paciente_id=paciente_id,
             valor=request.POST["valor"],
             post_comida=request.POST["post_comida"],
-            fecha=fecha_str,
-            hora=hora_con_segundos
+            fecha=fecha,
+            hora=f"{hora}:{ahora.second:02d}"
         )
         return redirect("controles:glucemia", paciente_id=paciente_id)
 
-    return render(request, "controles/glucemia.html", {
-        "ultimo": ultimo,
-        "paciente": paciente,
-        "today": date.today(),
-        "now": datetime.now(),
-    })
 
+# ============================================================
+#   6. FRECUENCIA RESPIRATORIA
+# ============================================================
 
-# ----------------------------------------
-# 6. Frecuencia respiratoria
-# ----------------------------------------
-def frecuencia_respiratoria(request, paciente_id):
-    paciente = get_paciente(paciente_id)
-    ultimo = FrecuenciaRespiratoria.objects.filter(paciente_id=paciente_id).order_by('-fecha', '-hora').first()
+class FrecuenciaRespiratoriaView(PacienteAccessMixin, View):
+    template_name = "controles/frecuencia_respiratoria.html"
+    model = FrecuenciaRespiratoria
 
-    if request.method == "POST":
-        fecha_str = request.POST["fecha"]
-        hora_str = request.POST["hora"]
+    
+    def get(self, request, paciente_id):
+        paciente = self.get_paciente()
 
+        ultimo = self.model.objects.filter(
+            paciente_id=paciente_id
+        ).order_by("-fecha", "-hora").first()
+
+        return render(request, self.template_name, {
+            "ultimo": ultimo,
+            "paciente": paciente,
+            "today": date.today(),
+            "now": datetime.now(),
+        })
+    
+    def post(self, request, paciente_id):
+        fecha = request.POST["fecha"]
+        hora = request.POST["hora"]
         ahora = datetime.now()
-        hora_con_segundos = hora_str + f":{ahora.second:02d}"
+
         FrecuenciaRespiratoria.objects.create(
             paciente_id=paciente_id,
             valor=request.POST["valor"],
-            fecha=fecha_str,
-            hora=hora_con_segundos
+            fecha=fecha,
+            hora=f"{hora}:{ahora.second:02d}"
         )
         return redirect("controles:frecuencia_respiratoria", paciente_id=paciente_id)
 
-    return render(request, "controles/frecuencia_respiratoria.html", {
-        "ultimo": ultimo,
-        "paciente": paciente,
-        "today": date.today(),
-        "now": datetime.now(),
-    })
 
+# ============================================================
+#   7. DISNEA
+# ============================================================
 
-# ----------------------------------------
-# 7. Disnea
-# ----------------------------------------
-def disnea(request, paciente_id):
-    paciente = get_paciente(paciente_id)
-    ultimo = Disnea.objects.filter(paciente_id=paciente_id).order_by('-fecha', '-hora').first()
+class DisneaView(PacienteAccessMixin, View):
+    template_name = "controles/disnea.html"
+    model = Disnea
 
-    if request.method == "POST":
-        fecha_str = request.POST["fecha"]
-        hora_str = request.POST["hora"]
+    def get(self, request, paciente_id):
+        paciente = self.get_paciente()
 
+        ultimo = self.model.objects.filter(
+            paciente_id=paciente_id
+        ).order_by("-fecha", "-hora").first()
+
+        return render(request, self.template_name, {
+            "ultimo": ultimo,
+            "paciente": paciente,
+            "today": date.today(),
+            "now": datetime.now(),
+        })
+
+    def post(self, request, paciente_id):
+        fecha = request.POST["fecha"]
+        hora = request.POST["hora"]
         ahora = datetime.now()
-        hora_con_segundos = hora_str + f":{ahora.second:02d}"
-        
+
         Disnea.objects.create(
             paciente_id=paciente_id,
             valor=request.POST["valor"],
-            fecha=fecha_str,
-            hora=hora_con_segundos
+            fecha=fecha,
+            hora=f"{hora}:{ahora.second:02d}"
         )
         return redirect("controles:disnea", paciente_id=paciente_id)
 
-    return render(request, "controles/disnea.html", {
-        "ultimo": ultimo,
-        "paciente": paciente,
-        "today": date.today(),
-        "now": datetime.now(),
-    })
 
+# ============================================================
+#   8. SATURACIÓN DE OXÍGENO
+# ============================================================
 
-# ----------------------------------------
-# 8. Saturación de oxígeno
-# ----------------------------------------
-def saturacion_oxigeno(request, paciente_id):
-    paciente = get_paciente(paciente_id)
-    ultimo = SaturacionOxigeno.objects.filter(paciente_id=paciente_id).order_by('-fecha', '-hora').first()
+class SaturacionOxigenoView(PacienteAccessMixin, View):
+    template_name = "controles/saturacion_oxigeno.html"
+    model = SaturacionOxigeno
+    
+    def get(self, request, paciente_id):
+        paciente = self.get_paciente()
 
-    if request.method == "POST":
-        fecha_str = request.POST["fecha"]
-        hora_str = request.POST["hora"]
+        ultimo = self.model.objects.filter(
+            paciente_id=paciente_id
+        ).order_by("-fecha", "-hora").first()
 
+        return render(request, self.template_name, {
+            "ultimo": ultimo,
+            "paciente": paciente,
+            "today": date.today(),
+            "now": datetime.now(),
+        })
+    
+    def post(self, request, paciente_id):
+        fecha = request.POST["fecha"]
+        hora = request.POST["hora"]
         ahora = datetime.now()
-        hora_con_segundos = hora_str + f":{ahora.second:02d}"
+
         SaturacionOxigeno.objects.create(
             paciente_id=paciente_id,
             valor=request.POST["valor"],
             oxigeno_suplementario=request.POST.get("oxigeno_suplementario") == "si",
-            fecha=fecha_str,
-            hora=hora_con_segundos
+            fecha=fecha,
+            hora=f"{hora}:{ahora.second:02d}"
         )
         return redirect("controles:saturacion_oxigeno", paciente_id=paciente_id)
 
-    return render(request, "controles/saturacion_oxigeno.html", {
-        "ultimo": ultimo,
-        "paciente": paciente,
-        "today": date.today(),
-        "now": datetime.now(),
-    })
 
+# ============================================================
+#   9. INDICACIONES
+# ============================================================
 
-# ----------------------------------------
-# 9. Indicaciones / Piezas de información
-# ----------------------------------------
-def indicaciones(request, paciente_id):
-    paciente = get_paciente(paciente_id)
-    piezas = Indicaciones.objects.filter(activo=True).order_by('-fecha')
+class IndicacionesView(PacienteAccessMixin, View):
+    template_name = "controles/indicaciones.html"
 
-    return render(request, "controles/indicaciones.html", {
-        "piezas": piezas,
-        "paciente": paciente
-    })
+    def get(self, request, paciente_id):
+        paciente = self.get_paciente()
+        piezas = Indicaciones.objects.filter(activo=True).order_by("-fecha")
+
+        return render(request, self.template_name, {
+            "piezas": piezas,
+            "paciente": paciente
+        })

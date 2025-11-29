@@ -1,10 +1,15 @@
+# profesionales/urls.py
 from django.urls import path
-from . import views
+from .views import (
+    ListaProfesionalesView,
+    DetalleProfesionalView,
+    ListaEspecialidadesView,
+)
 
 app_name = "profesionales"
 
 urlpatterns = [
-    path('', views.lista_profesionales, name='lista_profesionales'),
-    path('<int:profesional_id>/', views.detalle_profesional, name='detalle_profesional'),
-    path('especialidades/', views.lista_especialidades, name='lista_especialidades'),
+    path("", ListaProfesionalesView.as_view(), name="lista_profesionales"),
+    path("<int:profesional_id>/", DetalleProfesionalView.as_view(), name="detalle_profesional"),
+    path("especialidades/", ListaEspecialidadesView.as_view(), name="lista_especialidades"),
 ]

@@ -1,87 +1,81 @@
+# usuarios/views.py (VERSION COMPLETA CON CLASES)
+
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
 from django.contrib.auth import login
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from pacientes.models import Paciente
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
+from django.views.generic import TemplateView, DetailView, FormView
 from .forms import RegistroCustomForm, LoginForm
 from .models import PerfilUsuario
-
-# -----------------------------
-# REGISTRO DE USUARIO
-# -----------------------------
-
-def login_usuario(request):
-    form = LoginForm(request, data=request.POST or None)
-
-    if request.method == "POST":
-        if form.is_valid():
-            usuario = form.get_user()
-            login(request, usuario)
-            return redirect("usuarios:perfil")
-    return render(request, "usuarios/login.html", {"form": form})
-
-def registrar_usuario(request):
-    if request.method == "POST":
-        form = RegistroCustomForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
-
-            # Crear usuario
-            usuario = User.objects.create_user(
-                username=username,
-                password=password
-            )
-
-            PerfilUsuario.objects.create(usuario=usuario)
-
-            login(request, usuario)
-            return redirect("usuarios:perfil")
-
-    else:
-        form = RegistroCustomForm()
-
-    return render(request, "usuarios/registrar_custom.html", {"form": form})
+from pacientes.models import Paciente
 
 
+# =====================================================
+# 🔐 LOGIN (Class-Based)
+# =====================================================
+class UsuarioLoginView(FormView):
+    template_name = "usuarios/login.html"
+    form_class = LoginForm
+    success_url = reverse_lazy("usuarios:perfil")
 
-# -----------------------------
-# USUARIO
-# -----------------------------
-@login_required
-def portal_paciente(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
-
-    # Seguridad: asegurar que ese paciente pertenece al usuario
-    if paciente not in request.user.perfil.pacientes.all():
-        return render(request, "usuarios/acceso_denegado.html")
-
-    return render(request, "pacientes/portal_paciente.html", {
-        "usuario": request.user,
-        "paciente": paciente
-    })
-
-@login_required
-def perfil_usuario(request):
-    perfil = request.user.perfil
-    pacientes = perfil.pacientes.all()  
-    
-    return render(request, "usuarios/perfil.html", {
-        "usuario": request.user,
-        "perfil": perfil,
-        "pacientes": pacientes,
-    })
+    def form_valid(self, form):
+        usuario = form.get_user()
+        login(self.request, usuario)
+        return super().form_valid(form)
 
 
+# =====================================================
+# 📝 REGISTRO DE USUARIO (Class-Based)
+# =====================================================
+class RegistrarUsuarioView(FormView):
+    template_name = "usuarios/registrar_custom.html"
+    form_class = RegistroCustomForm
+    success_url = reverse_lazy("usuarios:perfil")
 
-# -----------------------------
-# PACIENTE
-# -----------------------------
-@login_required
-def detalle_paciente_usuario(request, pk):
-    paciente = get_object_or_404(Paciente, pk=pk)
+    def form_valid(self, form):
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
 
-    if paciente not in request.user.perfil.pacientes.all():
-        return render(request, "usuarios/acceso_denegado.html")
+        usuario = User.objects.create_user(
+            username=username,
+            password=password
+        )
 
-    return render(request, "pacientes/paciente_detalle.html", {"paciente": paciente})
+        PerfilUsuario.objects.create(usuario=usuario)
+
+        login(self.request, usuario)
+        return super().form_valid(form)
+
+
+# =====================================================
+# 🧍 PERFIL DEL USUARIO (Class-Based)
+# =====================================================
+class PerfilUsuarioView(LoginRequiredMixin, TemplateView):
+    template_name = "usuarios/perfil.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        perfil = self.request.user.perfil
+        ctx["usuario"] = self.request.user
+        ctx["perfil"] = perfil
+        ctx["pacientes"] = perfil.pacientes.all()
+        return ctx
+
+
+# =====================================================
+# 🔎 DETALLE DE PACIENTE DESDE USUARIO (Class-Based)
+# =====================================================
+class PacienteDetalleUsuarioView(LoginRequiredMixin, DetailView):
+    model = Paciente
+    template_name = "pacientes/paciente_detalle.html"
+    context_object_name = "paciente"
+
+    def get_object(self):
+        paciente = super().get_object()
+
+        if paciente not in self.request.user.perfil.pacientes.all():
+            raise PermissionError("No tenés acceso a este paciente")
+
+        return paciente
