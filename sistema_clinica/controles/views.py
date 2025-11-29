@@ -15,10 +15,6 @@ from .models import (
 
 from .mixins import PacienteAccessMixin
 
-# ============================================================
-#   1. PESO Y ALTURA
-# ============================================================
-
 class PesoAlturaView(PacienteAccessMixin, View):
     template_name = "controles/peso_altura.html"
     model = PesoAltura
@@ -46,10 +42,6 @@ class PesoAlturaView(PacienteAccessMixin, View):
         )
         return redirect("controles:peso_altura", paciente_id=paciente_id)
 
-
-# ============================================================
-#   2. TEMPERATURA
-# ============================================================
 
 class TemperaturaView(PacienteAccessMixin, View):
     template_name = "controles/temperatura.html"
@@ -84,10 +76,6 @@ class TemperaturaView(PacienteAccessMixin, View):
         return redirect("controles:temperatura", paciente_id=paciente_id)
 
 
-# ============================================================
-#   3. FRECUENCIA CARDIACA
-# ============================================================
-
 class FrecuenciaCardiacaView(PacienteAccessMixin, View):
     template_name = "controles/frecuencia_cardiaca.html"
     model = FrecuenciaCardiaca
@@ -120,10 +108,6 @@ class FrecuenciaCardiacaView(PacienteAccessMixin, View):
         )
         return redirect("controles:frecuencia_cardiaca", paciente_id=paciente_id)
 
-
-# ============================================================
-#   4. PRESIÓN ARTERIAL
-# ============================================================
 
 class PresionArterialView(PacienteAccessMixin, View):
     template_name = "controles/presion_arterial.html"
@@ -161,10 +145,6 @@ class PresionArterialView(PacienteAccessMixin, View):
         return redirect("controles:presion_arterial", paciente_id=paciente_id)
 
 
-# ============================================================
-#   5. GLUCEMIA
-# ============================================================
-
 class GlucemiaView(PacienteAccessMixin, View):
     template_name = "controles/glucemia.html"
     model = Glucemia
@@ -197,10 +177,6 @@ class GlucemiaView(PacienteAccessMixin, View):
         )
         return redirect("controles:glucemia", paciente_id=paciente_id)
 
-
-# ============================================================
-#   6. FRECUENCIA RESPIRATORIA
-# ============================================================
 
 class FrecuenciaRespiratoriaView(PacienteAccessMixin, View):
     template_name = "controles/frecuencia_respiratoria.html"
@@ -235,10 +211,6 @@ class FrecuenciaRespiratoriaView(PacienteAccessMixin, View):
         return redirect("controles:frecuencia_respiratoria", paciente_id=paciente_id)
 
 
-# ============================================================
-#   7. DISNEA
-# ============================================================
-
 class DisneaView(PacienteAccessMixin, View):
     template_name = "controles/disnea.html"
     model = Disnea
@@ -270,10 +242,6 @@ class DisneaView(PacienteAccessMixin, View):
         )
         return redirect("controles:disnea", paciente_id=paciente_id)
 
-
-# ============================================================
-#   8. SATURACIÓN DE OXÍGENO
-# ============================================================
 
 class SaturacionOxigenoView(PacienteAccessMixin, View):
     template_name = "controles/saturacion_oxigeno.html"
@@ -307,10 +275,6 @@ class SaturacionOxigenoView(PacienteAccessMixin, View):
         )
         return redirect("controles:saturacion_oxigeno", paciente_id=paciente_id)
 
-
-# ============================================================
-#   9. INDICACIONES
-# ============================================================
 
 class IndicacionesView(PacienteAccessMixin, View):
     template_name = "controles/indicaciones.html"

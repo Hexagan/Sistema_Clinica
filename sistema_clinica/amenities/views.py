@@ -13,9 +13,8 @@ class PacienteFromPerfilMixin(LoginRequiredMixin):
         perfil = self.request.user.perfil
         return perfil.pacientes.get(pk=paciente_id)
 
-
 # ----------------------------------------------------------
-# Vista genérica para un Amenity
+# Vista genérica
 # ----------------------------------------------------------
 
 class AmenityBaseView(LoginRequiredMixin, TemplateView):

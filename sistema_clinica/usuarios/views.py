@@ -12,9 +12,6 @@ from .models import PerfilUsuario
 from pacientes.models import Paciente
 
 
-# =====================================================
-# 🔐 LOGIN (Class-Based)
-# =====================================================
 class UsuarioLoginView(FormView):
     template_name = "usuarios/login.html"
     form_class = LoginForm
@@ -26,9 +23,6 @@ class UsuarioLoginView(FormView):
         return super().form_valid(form)
 
 
-# =====================================================
-# 📝 REGISTRO DE USUARIO (Class-Based)
-# =====================================================
 class RegistrarUsuarioView(FormView):
     template_name = "usuarios/registrar_custom.html"
     form_class = RegistroCustomForm
@@ -49,9 +43,6 @@ class RegistrarUsuarioView(FormView):
         return super().form_valid(form)
 
 
-# =====================================================
-# 🧍 PERFIL DEL USUARIO (Class-Based)
-# =====================================================
 class PerfilUsuarioView(LoginRequiredMixin, TemplateView):
     template_name = "usuarios/perfil.html"
 
@@ -64,9 +55,6 @@ class PerfilUsuarioView(LoginRequiredMixin, TemplateView):
         return ctx
 
 
-# =====================================================
-# 🔎 DETALLE DE PACIENTE DESDE USUARIO (Class-Based)
-# =====================================================
 class PacienteDetalleUsuarioView(LoginRequiredMixin, DetailView):
     model = Paciente
     template_name = "pacientes/paciente_detalle.html"

@@ -3,10 +3,6 @@ from django.views.generic import ListView, DetailView
 from django.shortcuts import get_object_or_404
 from .models import Profesional, Especialidad
 
-
-# ======================================================
-# 1) LISTA DE PROFESIONALES
-# ======================================================
 class ListaProfesionalesView(ListView):
     model = Profesional
     template_name = "profesionales/lista_profesionales.html"
@@ -21,9 +17,6 @@ class ListaProfesionalesView(ListView):
         )
 
 
-# ======================================================
-# 2) DETALLE DE PROFESIONAL
-# ======================================================
 class DetalleProfesionalView(DetailView):
     model = Profesional
     template_name = "profesionales/detalle_profesional.html"
@@ -38,9 +31,6 @@ class DetalleProfesionalView(DetailView):
         )
 
 
-# ======================================================
-# 3) LISTA DE ESPECIALIDADES
-# ======================================================
 class ListaEspecialidadesView(ListView):
     model = Especialidad
     template_name = "profesionales/lista_especialidades.html"

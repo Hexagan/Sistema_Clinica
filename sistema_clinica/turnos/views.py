@@ -23,17 +23,13 @@ from profesionales.models import Especialidad, Profesional
 from amenities.models import Beneficio, BeneficioOtorgado
 from django.core.serializers.json import DjangoJSONEncoder
 
-# (Si tenés un PacienteAccessMixin en pacientes.mixins úsalo donde convenga.
-#  Si no lo tenés, usá LoginRequiredMixin y validá manualmente como antes.)
+
 try:
     from pacientes.mixins import PacienteAccessMixin
 except Exception:
-    PacienteAccessMixin = LoginRequiredMixin  # fallback minimal
+    PacienteAccessMixin = LoginRequiredMixin  # fallback minimo
 
 
-# -----------------------------
-# SOLICITAR TURNO (form de búsqueda)
-# -----------------------------
 class SolicitarTurnoView(LoginRequiredMixin, TemplateView):
     template_name = "turnos/solicitar_turno.html"
 
@@ -74,9 +70,6 @@ class SolicitarTurnoView(LoginRequiredMixin, TemplateView):
         return context
 
 
-# -----------------------------
-# TURNOS DISPONIBLES
-# -----------------------------
 class TurnosDisponiblesView(LoginRequiredMixin, View):
     template_name = "turnos/turnos_disponibles.html"
 
@@ -169,9 +162,7 @@ class TurnosDisponiblesView(LoginRequiredMixin, View):
         })
 
 
-# -----------------------------
-# RESERVAR TURNO (POST)
-# -----------------------------
+
 class ReservarTurnoView(LoginRequiredMixin, View):
 
     @transaction.atomic
@@ -241,9 +232,6 @@ class ReservarTurnoView(LoginRequiredMixin, View):
         return redirect("turnos:turno_exitoso", paciente_id=paciente.id, turno_id=turno.id)
 
 
-# -----------------------------
-# PANTALLA EXITO / DETALLE
-# -----------------------------
 class TurnoExitosoView(LoginRequiredMixin, TemplateView):
     template_name = "turnos/turno_exitoso.html"
 
@@ -263,9 +251,6 @@ class TurnoExitosoView(LoginRequiredMixin, TemplateView):
         return context
 
 
-# -----------------------------
-# HISTORIAL Y AGENDADOS
-# -----------------------------
 class TurnosHistorialView(LoginRequiredMixin, TemplateView):
     template_name = "turnos/turnos_historial.html"
 
@@ -308,7 +293,6 @@ class TurnosAgendadosView(LoginRequiredMixin, TemplateView):
 
         ahora = timezone.localtime()
 
-        # SOLO Confirmados (estado = 2)
         turnos_confirmados = Turno.objects.filter(
             paciente=paciente,
             estado__pk=2
@@ -330,10 +314,6 @@ class TurnosAgendadosView(LoginRequiredMixin, TemplateView):
         return context
 
 
-
-# -----------------------------
-# VER / CANCELAR / CHECKIN
-# -----------------------------
 class VerTurnoView(LoginRequiredMixin, TemplateView):
     template_name = "turnos/ver_turno.html"
 
@@ -378,9 +358,6 @@ class CancelarTurnoView(LoginRequiredMixin, View):
             messages.error(request, "No se puede cancelar un turno que ya pasó.")
             return redirect("turnos:turnos_agendados", paciente_id=paciente_id)
 
-        # ---------------------------------------------------------
-        # CANCELACIÓN VÁLIDA
-        # ---------------------------------------------------------
         estado_cancelado = Estado.objects.get(pk=5)
         estado_disponible = Estado.objects.get(pk=1)
 
@@ -446,9 +423,6 @@ class CheckinQRView(View):
 
             turno.save()
 
-            # -----------------------------------------------------
-            # Crear CheckInLog automáticamente (SOLO PRIMERA VEZ)
-            # -----------------------------------------------------
             from .models import CheckInLog
 
             CheckInLog.objects.create(
