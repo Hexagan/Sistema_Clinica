@@ -7,9 +7,6 @@ from pacientes.models import Paciente
 from .models import Amenity, BeneficioOtorgado
 
 
-# ----------------------------------------------------------
-# Mixin para cargar paciente del perfil del usuario
-# ----------------------------------------------------------
 class PacienteFromPerfilMixin(LoginRequiredMixin):
 
     def get_paciente(self, paciente_id):
@@ -55,10 +52,7 @@ class AmenityBaseView(LoginRequiredMixin, TemplateView):
         return context
 
 
-
-# ----------------------------------------------------------
 # VISTAS ESPECÍFICAS (solo definen nombre y template)
-# ----------------------------------------------------------
 
 class GimnasioView(AmenityBaseView):
     amenity_nombre = "Gimnasio"
