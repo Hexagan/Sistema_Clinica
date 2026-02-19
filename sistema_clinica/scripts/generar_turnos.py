@@ -8,11 +8,15 @@ DIAS_MAP = {
     "Vie": 4, "Sab": 5, "Dom": 6
 }
 
-def run(dias=30, intervalo=30):
+def run(*args):
     """
     Ejecutar con:
-        python manage.py runscript generar_turnos --script-args=30 20
+        python manage.py runscript generar_turnos --script-args 30 20
     """
+
+    dias = int(args[0]) if len(args) > 0 else 30
+    intervalo = int(args[1]) if len(args) > 1 else 30
+
     estado_pendiente = Estado.objects.get(pk=1)
     hoy = timezone.localdate()
 
@@ -31,6 +35,9 @@ def run(dias=30, intervalo=30):
         inicio = profesional.horario_inicio
         fin = profesional.horario_fin
 
+        if not inicio or not fin:
+            continue
+
         fecha_actual = hoy
 
         for _ in range(dias):
@@ -44,20 +51,38 @@ def run(dias=30, intervalo=30):
                 while slot_dt < dt_fin:
                     hora = slot_dt.time()
 
-                    if not Turno.objects.filter(
-                        profesional=profesional,
-                        fecha=fecha_actual,
-                        hora=hora
-                    ).exists():
-                        Turno.objects.create(
+                    # Determinar modalidad según tipo del profesional
+                    modalidades = []
+
+                    if profesional.tipo_consulta == "PRES":
+                        modalidades = ["PRES"]
+
+                    elif profesional.tipo_consulta == "TELE":
+                        modalidades = ["TELE"]
+
+                    elif profesional.tipo_consulta == "AMBOS":
+                        modalidades = ["PRES", "TELE"]
+
+                    for modalidad in modalidades:
+
+                        existe = Turno.objects.filter(
                             profesional=profesional,
                             fecha=fecha_actual,
                             hora=hora,
-                            estado=estado_pendiente,
-                        )
+                            modalidad=modalidad
+                        ).exists()
+
+                        if not existe:
+                            Turno.objects.create(
+                                profesional=profesional,
+                                fecha=fecha_actual,
+                                hora=hora,
+                                estado=estado_pendiente,
+                                modalidad=modalidad
+                            )
 
                     slot_dt += timedelta(minutes=intervalo)
 
             fecha_actual += timedelta(days=1)
 
-    print("✔ Turnos generados.")
+    print("✔ Turnos generados correctamente según modalidad.")

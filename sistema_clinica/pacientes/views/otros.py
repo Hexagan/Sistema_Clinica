@@ -6,6 +6,7 @@ from django.utils.translation import activate
 from django.shortcuts import render
 from pacientes.mixins import PacienteAccessMixin
 from pacientes.models import Estudio
+from profesionales.models import Profesional
 from django.shortcuts import redirect
 
 class MedicamentosView(PacienteAccessMixin, View):
@@ -24,10 +25,11 @@ class MisMedicosView(PacienteAccessMixin, View):
     template_name = "pacientes/mis_medicos.html"
 
     def get(self, request, paciente_id):
-        paciente = self.get_paciente()
 
-        profesionales = paciente.turno_set.all().values_list(
-            "profesional", flat=True
+        paciente = self.paciente
+
+        profesionales = Profesional.objects.filter(
+            turno__paciente=paciente
         ).distinct()
 
         return render(request, self.template_name, {

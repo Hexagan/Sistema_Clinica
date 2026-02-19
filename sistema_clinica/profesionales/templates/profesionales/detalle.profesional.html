@@ -22,22 +22,18 @@
         {% endif %}
     </p>
 
-    <!-- Disponibilidad adicional (texto libre) -->
     {% if profesional.disponibilidad %}
         <p><strong>Notas adicionales:</strong> {{ profesional.disponibilidad }}</p>
     {% endif %}
 
-    <!-- Consultorio -->
     {% if profesional.consultorio %}
         <p><strong>Consultorio:</strong> {{ profesional.consultorio }}</p>
     {% endif %}
 
-    <!-- Tipo de atención -->
     <p><strong>Tipo de consulta:</strong> 
         {{ profesional.get_tipo_consulta_display }}
     </p>
 
-    <!-- Servicios -->
     <p><strong>Servicios:</strong>
         {% for s in profesional.servicios.all %}
             {{ s.nombre }}{% if not forloop.last %}, {% endif %}
