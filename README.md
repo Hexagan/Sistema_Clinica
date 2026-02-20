@@ -2,3 +2,5 @@ El sistema está diseñado para gestionar los turnos médicos de una clínica y 
 
 Diagrama Entidad Relación del proyecto:
 ![DER](img/DER2.png)
+En funcionamiento:
+![Cki](img/Checkin.png)
