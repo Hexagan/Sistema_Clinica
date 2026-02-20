@@ -253,8 +253,8 @@ body {
     transform: scale(1.07);
 }
 
-.badge-amenities {
-    background-color: #0d6efd;
+.sidebar .badge-amenities {
+    background-color: #278853;
     color: white;
     font-size: 11px;
     font-weight: 600;
@@ -265,12 +265,35 @@ body {
     text-align: center;
 }
 
-.badge-amenity-item {
-    background-color: #0d6efd;
+.sidebar .badge-amenity-item {
+    background-color: #278853; 
     color: white;
     font-size: 10px;
     font-weight: 600;
     padding: 2px 6px;
     border-radius: 10px;
-    margin-left: auto;
+}
+
+/* Card cobertura */
+.cobertura-card {
+    border: 2px solid #dee2e6;
+    transition: all 0.25s ease;
+    border-radius: 10px;
+}
+
+.cobertura-card.selected {
+    border: 2px solid #0d6efd;
+    background-color: #f0f7ff;
+    box-shadow: 0 0 10px rgba(13,110,253,0.2);
+}
+
+.radio-wrapper {
+    width: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+.disabled-btn {
+    opacity: 0.5;
+    pointer-events: none;
 }

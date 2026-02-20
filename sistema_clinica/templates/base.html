@@ -66,7 +66,6 @@
         </div>
     </div>
 
-    <!-- SIDEBAR -->
     <div class="sidebar">
         
         <a href="{% url 'pacientes:portal_paciente' paciente.id %}">
@@ -99,7 +98,6 @@
             </a>
         </div>
 
-        <!-- ESTUDIOS -->
         <a href="{% url 'pacientes:estudios' paciente.id %}">
             <span class="material-symbols-outlined">biotech</span>
             <span class="text">Estudios</span>
@@ -160,25 +158,21 @@
             </a>
         </div>
 
-        <!-- MEDICAMENTOS -->
         <a href="{% url 'pacientes:medicamentos' paciente.id %}">
             <span class="material-symbols-outlined">medication</span>
             <span class="text">Medicamentos</span>
         </a>
 
-        <!-- MÉDICOS -->
         <a href="{% url 'pacientes:mis_medicos' paciente.id %}">
             <span class="material-symbols-outlined">medical_services</span>
             <span class="text">Médicos</span>
         </a>
 
-        <!-- TELECONSULTAS -->
         <a href="{% url 'pacientes:teleconsultas' paciente.id %}">
             <span class="material-symbols-outlined">call</span>
             <span class="text">Teleconsultas</span>
         </a>
 
-        <!-- DIARIO (placeholder) -->
         <a href="{% url 'pacientes:mi_diario' paciente.id %}">
             <span class="material-symbols-outlined">book</span>
             <span class="text">Mi Diario</span>
@@ -186,19 +180,16 @@
 
         <hr class="text-white">
 
-        <!-- MI COBERTURA (placeholder) -->
-        <a href="#">
+        <a href="{% url 'pacientes:cobertura_medica' paciente.id %}">
             <span class="material-symbols-outlined">shield_person</span>
             <span class="text">Mi Cobertura</span>
         </a>
 
-        <!-- CARTILLA MÉDICA -->
-        <a href="{% url 'pacientes:cartilla' paciente.id %}">
+        <a href="{% url 'turnos:solicitar_turno' paciente.id %}">
             <span class="material-symbols-outlined">menu_book</span>
             <span class="text">Cartilla Médica</span>
         </a>
 
-        <!-- AMENITIES -->
         <a data-bs-toggle="collapse" href="#submenuAmenities" class="position-relative">
             <span class="material-symbols-outlined">grade</span>
             <span class="text">Amenities</span>
@@ -243,9 +234,9 @@
                 <span class="material-symbols-outlined">self_improvement</span>
                 <span class="text">Talleres de salud</span>
 
-                {% if beneficios_por_amenity.gimnasio > 0 %}
+                {% if beneficios_por_amenity.talleres > 0 %}
                     <span class="badge-amenity-item">
-                        {{ beneficios_por_amenity.gimnasio }}
+                        {{ beneficios_por_amenity.talleres }}
                     </span>
                 {% endif %}
             </a>

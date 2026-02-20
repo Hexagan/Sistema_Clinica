@@ -29,6 +29,7 @@ from pacientes.views.estudios import (
     CargarEstudioView
 )
 from pacientes.views.otros import (
+    CoberturaMedicaView,
     MedicamentosView,
     MisMedicosView,
     TeleconsultasView,
@@ -82,8 +83,8 @@ urlpatterns = [
     path("teleconsultas/<int:paciente_id>/", TeleconsultasView.as_view(), name="teleconsultas"),
     path("cartilla/<int:paciente_id>/", MisMedicosView.as_view(), name="cartilla"),  # O si existe CartillaView, cámbialo
     path("mi-diario/<int:paciente_id>/", MiDiarioView.as_view(), name="mi_diario"),
-    path("consultas-gestiones/<int:paciente_id>/",
-     ConsultasGestionesView.as_view(),
-     name="consultas_gestiones"),
+    path("consultas-gestiones/<int:paciente_id>/", ConsultasGestionesView.as_view(), name="consultas_gestiones"),
+    path("cobertura/<int:paciente_id>/", CoberturaMedicaView.as_view(), name="cobertura_medica"
+)
 
 ]

@@ -88,3 +88,12 @@ class ConsultasGestionesView(PacienteAccessMixin, View):
     def post(self, request, paciente_id):
         # Más adelante podrás agregar lógica interna
         return redirect("pacientes:consultas_gestiones", paciente_id=paciente_id)
+
+class CoberturaMedicaView(PacienteAccessMixin, View):
+    template_name = "pacientes/cobertura_medica.html"
+
+    def get(self, request, paciente_id):
+        return render(request, self.template_name, {
+            "paciente": self.get_paciente(),
+            "paciente_id": paciente_id,
+        })
