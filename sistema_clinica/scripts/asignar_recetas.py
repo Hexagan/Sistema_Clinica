@@ -123,4 +123,4 @@ def run():
     for r in creadas:
         print(f"  - {r.nombre} ({r.profesional.nombre})")
 
-    print("🎉 Seed completado.")
+    print("Seed completado.")

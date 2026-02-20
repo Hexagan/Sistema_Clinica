@@ -1,8 +1,7 @@
-# controles/views.py
-
 from datetime import datetime, date
 from django.shortcuts import render, redirect
 from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from pacientes.mixins import PacienteAccessMixin
 from pacientes.models import Paciente
@@ -13,7 +12,7 @@ from .models import (
     Disnea, SaturacionOxigeno, Indicaciones
 )
 
-class PesoAlturaView(PacienteAccessMixin, View):
+class PesoAlturaView(PacienteAccessMixin, LoginRequiredMixin, View):
     template_name = "controles/peso_altura.html"
     model = PesoAltura
     
@@ -41,7 +40,7 @@ class PesoAlturaView(PacienteAccessMixin, View):
         return redirect("controles:peso_altura", paciente_id=paciente_id)
 
 
-class TemperaturaView(PacienteAccessMixin, View):
+class TemperaturaView(PacienteAccessMixin, LoginRequiredMixin,View):
     template_name = "controles/temperatura.html"
     model = Temperatura
     
@@ -74,7 +73,7 @@ class TemperaturaView(PacienteAccessMixin, View):
         return redirect("controles:temperatura", paciente_id=paciente_id)
 
 
-class FrecuenciaCardiacaView(PacienteAccessMixin, View):
+class FrecuenciaCardiacaView(PacienteAccessMixin, LoginRequiredMixin, View):
     template_name = "controles/frecuencia_cardiaca.html"
     model = FrecuenciaCardiaca
     
@@ -107,7 +106,7 @@ class FrecuenciaCardiacaView(PacienteAccessMixin, View):
         return redirect("controles:frecuencia_cardiaca", paciente_id=paciente_id)
 
 
-class PresionArterialView(PacienteAccessMixin, View):
+class PresionArterialView(PacienteAccessMixin, LoginRequiredMixin, View):
     template_name = "controles/presion_arterial.html"
     model = PresionArterial
     
@@ -143,7 +142,7 @@ class PresionArterialView(PacienteAccessMixin, View):
         return redirect("controles:presion_arterial", paciente_id=paciente_id)
 
 
-class GlucemiaView(PacienteAccessMixin, View):
+class GlucemiaView(PacienteAccessMixin, LoginRequiredMixin, View):
     template_name = "controles/glucemia.html"
     model = Glucemia
     
@@ -176,7 +175,7 @@ class GlucemiaView(PacienteAccessMixin, View):
         return redirect("controles:glucemia", paciente_id=paciente_id)
 
 
-class FrecuenciaRespiratoriaView(PacienteAccessMixin, View):
+class FrecuenciaRespiratoriaView(PacienteAccessMixin, LoginRequiredMixin, View):
     template_name = "controles/frecuencia_respiratoria.html"
     model = FrecuenciaRespiratoria
 
@@ -209,7 +208,7 @@ class FrecuenciaRespiratoriaView(PacienteAccessMixin, View):
         return redirect("controles:frecuencia_respiratoria", paciente_id=paciente_id)
 
 
-class DisneaView(PacienteAccessMixin, View):
+class DisneaView(PacienteAccessMixin, LoginRequiredMixin, View):
     template_name = "controles/disnea.html"
     model = Disnea
 
@@ -241,7 +240,7 @@ class DisneaView(PacienteAccessMixin, View):
         return redirect("controles:disnea", paciente_id=paciente_id)
 
 
-class SaturacionOxigenoView(PacienteAccessMixin, View):
+class SaturacionOxigenoView(PacienteAccessMixin, LoginRequiredMixin, View):
     template_name = "controles/saturacion_oxigeno.html"
     model = SaturacionOxigeno
     
@@ -274,7 +273,7 @@ class SaturacionOxigenoView(PacienteAccessMixin, View):
         return redirect("controles:saturacion_oxigeno", paciente_id=paciente_id)
 
 
-class IndicacionesView(PacienteAccessMixin, View):
+class IndicacionesView(PacienteAccessMixin, LoginRequiredMixin, View):
     template_name = "controles/indicaciones.html"
 
     def get(self, request, paciente_id):

@@ -1,14 +1,11 @@
-# turnos/views.py
-import json
-import qrcode
-import base64
-import random
+import json, qrcode, base64, random
+
 from io import BytesIO
 from collections import defaultdict
 from datetime import datetime, date
 
 from django.views import View
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.db import transaction
@@ -16,28 +13,21 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from django.http import HttpResponse
+from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import Turno, Estado
 from pacientes.models import Paciente
+from pacientes.mixins import PacienteAccessMixin
 from profesionales.models import Especialidad, Profesional
 from amenities.models import Beneficio, BeneficioOtorgado
-from django.core.serializers.json import DjangoJSONEncoder
 
-
-try:
-    from pacientes.mixins import PacienteAccessMixin
-except Exception:
-    PacienteAccessMixin = LoginRequiredMixin  # fallback minimo
-
-
-class SolicitarTurnoView(LoginRequiredMixin, TemplateView):
+class SolicitarTurnoView(LoginRequiredMixin, PacienteAccessMixin, TemplateView):
     template_name = "turnos/solicitar_turno.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        perfil = self.request.user.perfil
         paciente_id = kwargs.get("paciente_id")
-        paciente = perfil.pacientes.get(pk=paciente_id) if paciente_id else None
+        paciente = self.get_paciente()
 
         profesionales = Profesional.objects.all()
         profesionales_data = [
@@ -254,16 +244,14 @@ class ReservarTurnoView(LoginRequiredMixin, View):
         return redirect("turnos:turno_exitoso", paciente_id=paciente.id, turno_id=turno.id)
 
 
-class TurnoExitosoView(LoginRequiredMixin, TemplateView):
+class TurnoExitosoView(LoginRequiredMixin, PacienteAccessMixin, TemplateView):
     template_name = "turnos/turno_exitoso.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        paciente_id = kwargs.get("paciente_id")
         turno_id = kwargs.get("turno_id")
 
-        perfil = self.request.user.perfil
-        paciente = perfil.pacientes.get(pk=paciente_id)
+        paciente = self.get_paciente()
         turno = get_object_or_404(Turno, id=turno_id, paciente=paciente)
 
         context.update({
@@ -273,14 +261,12 @@ class TurnoExitosoView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class TurnosHistorialView(LoginRequiredMixin, TemplateView):
+class TurnosHistorialView(LoginRequiredMixin, PacienteAccessMixin, TemplateView):
     template_name = "turnos/turnos_historial.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        paciente_id = kwargs.get("paciente_id")
-        perfil = self.request.user.perfil
-        paciente = perfil.pacientes.get(pk=paciente_id)
+        paciente = self.get_paciente()
 
         ahora = timezone.localtime()
         turnos = Turno.objects.filter(paciente=paciente)
@@ -303,15 +289,13 @@ class TurnosHistorialView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class TurnosAgendadosView(LoginRequiredMixin, TemplateView):
+class TurnosAgendadosView(LoginRequiredMixin, PacienteAccessMixin, TemplateView):
     template_name = "turnos/turnos_agendados.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        paciente_id = kwargs.get("paciente_id")
-        perfil = self.request.user.perfil
-        paciente = perfil.pacientes.get(pk=paciente_id)
+        paciente = self.get_paciente()
 
         ahora = timezone.localtime()
 
@@ -336,17 +320,15 @@ class TurnosAgendadosView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class VerTurnoView(LoginRequiredMixin, TemplateView):
+class VerTurnoView(LoginRequiredMixin, PacienteAccessMixin, TemplateView):
     template_name = "turnos/ver_turno.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        paciente_id = kwargs.get("paciente_id")
         turno_id = kwargs.get("turno_id")
 
-        perfil = self.request.user.perfil
-        paciente = perfil.pacientes.get(pk=paciente_id)
+        paciente = self.get_paciente()
 
         turno = get_object_or_404(
             Turno.objects.select_related(
@@ -373,12 +355,11 @@ class VerTurnoView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class CancelarTurnoView(LoginRequiredMixin, View):
+class CancelarTurnoView(LoginRequiredMixin, PacienteAccessMixin, View):
 
     @transaction.atomic
     def post(self, request, paciente_id, turno_id):
-        perfil = request.user.perfil
-        paciente = perfil.pacientes.get(pk=paciente_id)
+        paciente = self.get_paciente()
         turno = get_object_or_404(Turno, pk=turno_id, paciente=paciente)
 
         ahora = timezone.localtime()
@@ -415,7 +396,7 @@ class CancelarTurnoView(LoginRequiredMixin, View):
             paciente=None
         )
 
-        # Para profesionales híbridos, recrear espejo
+        # Para profesionales híbridos, recrear modalidad espejo
         if turno.profesional.tipo_consulta == "AMBOS":
             modalidad_opuesta = "PRES" if turno.modalidad == "TELE" else "TELE"
             Turno.objects.create(
@@ -446,9 +427,7 @@ class CheckinQRView(View):
         turno = get_object_or_404(Turno, pk=turno_id)
         ahora = timezone.localtime()
 
-        # ---------------------------------------------------------
         # 1) Registrar check-in solo la primera vez
-        # ---------------------------------------------------------
         primer_checkin = turno.check_in is None
 
         if primer_checkin:
@@ -474,17 +453,13 @@ class CheckinQRView(View):
                 )
             )
 
-        # ---------------------------------------------------------
         # 2) Calcular puntualidad
-        # ---------------------------------------------------------
         horario_turno = timezone.make_aware(
             datetime.combine(turno.fecha, turno.hora)
         )
         llego_temprano = ahora < horario_turno
 
-        # ---------------------------------------------------------
         # 3) Beneficio por puntualidad
-        # ---------------------------------------------------------
         beneficio_otorgado = BeneficioOtorgado.objects.filter(
             turno=turno
         ).select_related("beneficio").first()
@@ -513,6 +488,3 @@ class CheckinQRView(View):
             "beneficio_elegido": beneficio_elegido,
             "beneficio_otorgado": beneficio_otorgado,
         })
-
-
-

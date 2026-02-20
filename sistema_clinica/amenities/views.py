@@ -1,31 +1,25 @@
-# amenities/views.py
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from controles.mixins import PacienteAccessMixin
 from pacientes.models import Paciente
 from .models import Amenity, BeneficioOtorgado
-
 
 class PacienteFromPerfilMixin(LoginRequiredMixin):
 
     def get_paciente(self, paciente_id):
-        perfil = self.request.user.perfil
-        return perfil.pacientes.get(pk=paciente_id)
+        paciente = self.get_paciente()
+        return paciente
 
-# ----------------------------------------------------------
 # Vista genérica
-# ----------------------------------------------------------
-
-class AmenityBaseView(LoginRequiredMixin, TemplateView):
+class AmenityBaseView(LoginRequiredMixin, PacienteAccessMixin, TemplateView):
     template_name = "amenities/base_amenity.html"  
     amenity_nombre = None 
 
     def get_context_data(self, paciente_id, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        perfil = self.request.user.perfil
-        paciente = perfil.pacientes.get(pk=paciente_id)
+        paciente = self.get_paciente()
 
         amenity = get_object_or_404(Amenity, nombre=self.amenity_nombre)
 
@@ -49,9 +43,6 @@ class AmenityBaseView(LoginRequiredMixin, TemplateView):
         })
 
         return context
-
-
-# VISTAS ESPECÍFICAS (solo definen nombre y template)
 
 class GimnasioView(AmenityBaseView):
     amenity_nombre = "Gimnasio"

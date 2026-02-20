@@ -179,8 +179,6 @@ profesionales = [
         "especialidad_id": 10,
     },
 
-    # ——— 15 PROFESIONALES MÁS ABAJO ———
-
     {
         "nombre": "Dr. Diego Villalba",
         "email": "dvillalba@clinic.com",

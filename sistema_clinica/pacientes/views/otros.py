@@ -1,15 +1,12 @@
-# pacientes/views/otros.py
-# (Medicamentos, mis médicos, cartilla, teleconsultas, diario)
-
 from django.views import View
 from django.utils.translation import activate
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 from pacientes.mixins import PacienteAccessMixin
 from pacientes.models import Estudio
 from profesionales.models import Profesional
-from django.shortcuts import redirect
 
-class MedicamentosView(PacienteAccessMixin, View):
+class MedicamentosView(LoginRequiredMixin, PacienteAccessMixin, View):
     template_name = "pacientes/medicamentos.html"
 
     def get(self, request, paciente_id):
@@ -21,7 +18,7 @@ class MedicamentosView(PacienteAccessMixin, View):
         })
 
 
-class MisMedicosView(PacienteAccessMixin, View):
+class MisMedicosView(LoginRequiredMixin,PacienteAccessMixin, View):
     template_name = "pacientes/mis_medicos.html"
 
     def get(self, request, paciente_id):
@@ -38,7 +35,7 @@ class MisMedicosView(PacienteAccessMixin, View):
         })
 
 
-class TeleconsultasView(PacienteAccessMixin, View):
+class TeleconsultasView(LoginRequiredMixin,PacienteAccessMixin, View):
     template_name = "pacientes/teleconsultas.html"
 
     def get(self, request, paciente_id):
@@ -48,7 +45,7 @@ class TeleconsultasView(PacienteAccessMixin, View):
         })
 
 
-class MiDiarioView(PacienteAccessMixin, View):
+class MiDiarioView(LoginRequiredMixin,PacienteAccessMixin, View):
     template_name = "pacientes/mi_diario.html"
 
     def get(self, request, paciente_id):
@@ -75,7 +72,7 @@ class MiDiarioView(PacienteAccessMixin, View):
             "grupos": grupos,
         })
 
-class ConsultasGestionesView(PacienteAccessMixin, View):
+class ConsultasGestionesView(LoginRequiredMixin,PacienteAccessMixin, View):
     template_name = "pacientes/consultas_gestiones.html"
 
     def get(self, request, paciente_id):
@@ -89,7 +86,7 @@ class ConsultasGestionesView(PacienteAccessMixin, View):
         # Más adelante podrás agregar lógica interna
         return redirect("pacientes:consultas_gestiones", paciente_id=paciente_id)
 
-class CoberturaMedicaView(PacienteAccessMixin, View):
+class CoberturaMedicaView(LoginRequiredMixin,PacienteAccessMixin, View):
     template_name = "pacientes/cobertura_medica.html"
 
     def get(self, request, paciente_id):

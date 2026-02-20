@@ -1,13 +1,13 @@
-# pacientes/views/estudios.py
 import os
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from pacientes.models import Estudio
 from pacientes.mixins import PacienteAccessMixin
 
 
-class EstudiosView(PacienteAccessMixin, View):
+class EstudiosView(LoginRequiredMixin, PacienteAccessMixin, View):
     template_name = "pacientes/estudios.html"
 
     def get(self, request, paciente_id):
@@ -23,7 +23,7 @@ class EstudiosView(PacienteAccessMixin, View):
         })
 
 
-class CargarEstudioView(PacienteAccessMixin, View):
+class CargarEstudioView(LoginRequiredMixin, PacienteAccessMixin, View):
     template_name = "pacientes/cargar_estudio.html"
 
     def get(self, request, paciente_id):
