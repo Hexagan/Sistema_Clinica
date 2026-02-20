@@ -146,6 +146,24 @@ class TurnosDisponiblesView(LoginRequiredMixin, View):
             if t.fecha > hoy or (t.fecha == hoy and t.hora > ahora)
         ]
 
+        # Buscar próximo turno futuro sin filtros restrictivos de fecha/hora/dias
+        proximo_turno = None
+
+        base_future = Turno.objects.filter(
+            estado=estado_disponible,
+            fecha__gte=date.today()
+        ).select_related("profesional", "profesional__especialidad")
+
+        if profesional_id:
+            base_future = base_future.filter(profesional_id=profesional_id)
+        elif especialidad:
+            base_future = base_future.filter(profesional__especialidad_id=especialidad)
+
+        if modo in ["PRES", "TELE"]:
+            base_future = base_future.filter(modalidad=modo)
+
+        proximo_turno = base_future.order_by("fecha", "hora").first()
+
         # ordenar y agrupar
         turnos_ordered = sorted(turnos_future, key=lambda t: (t.fecha, t.hora))
         turnos_por_dia = defaultdict(list)
@@ -153,12 +171,16 @@ class TurnosDisponiblesView(LoginRequiredMixin, View):
             turnos_por_dia[turno.fecha].append(turno)
         fechas_ordenadas = sorted(turnos_por_dia.keys())
 
+        hay_turnos = len(turnos_ordered) > 0
+
         return render(request, self.template_name, {
             "paciente": paciente,
             "paciente_id": paciente_id,
+            "proximo_turno": proximo_turno,
             "fechas_ordenadas": fechas_ordenadas,
             "turnos_por_dia": turnos_por_dia,
             "query": request.GET,
+            "hay_turnos": hay_turnos,
         })
 
 

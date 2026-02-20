@@ -78,86 +78,114 @@
 <div class="container py-3">
 
     <h2 class="mb-3">Turnos disponibles</h2>
+    {% if not hay_turnos %}
+    <div class="alert alert-warning mt-3">
+        <strong>No hay turnos disponibles en el dia y horario seleccionados</strong><br>
 
-    <!-- ============================= -->
-    <!-- TABS POR DÍA                  -->
-    <!-- ============================= -->
-    <ul class="nav nav-pills mb-3" id="diaTabs" role="tablist">
-        {% for fecha in fechas_ordenadas %}
-            <li class="nav-item" role="presentation">
-            <button
-                class="nav-link {% if forloop.first %}active{% endif %}"
-                id="tab-{{ forloop.counter }}"
-                data-bs-toggle="pill"
-                data-bs-target="#dia-{{ forloop.counter }}"
-                type="button"
-                role="tab">
-                {{ fecha|date:"D d/m"|capfirst }}
-            </button>
-            </li>
-        {% endfor %}
-    </ul>
+        {% if proximo_turno %}
+            El próximo turno disponible es el 
+            <strong>
+                {{ proximo_turno.fecha|date:"l d \\d\\e F \\d\\e Y" }}
+            </strong>
+            a las 
+            <strong>{{ proximo_turno.hora|time:"H:i" }}</strong>.
+        {% else %}
+            Actualmente el profesional no posee turnos cargados.
+        {% endif %}
+    </div>
 
-    <form method="POST" action="{% url 'turnos:reservar_turno' %}" id="reservarForm">
-        {% csrf_token %}
-        <input type="hidden" name="paciente_id" value="{{ paciente_id }}">
-        <input type="hidden" name="modo" value="{{ query.modo }}">
+    {% if proximo_turno %}
+        <a href="{% url 'turnos:turnos_disponibles' %}?profesional={{ proximo_turno.profesional.id }}&especialidad={{ proximo_turno.profesional.especialidad.id }}&modo={{ proximo_turno.modalidad }}&paciente_id={{ paciente_id }}"
+           class="btn btn-primary mt-2">
+            Ver próximos turnos disponibles
+        </a>
+    {% endif %}
 
-        <div class="tab-content">
+    <a href="{% url 'turnos:solicitar_turno' paciente.id %}"
+       class="btn btn-outline-secondary mt-2">
+        Modificar búsqueda
+    </a>
+        
+    {% else %}
 
+        <!-- TABS POR DÍA                  -->
+        <ul alert() class="nav nav-pills mb-3" id="diaTabs" role="tablist">
             {% for fecha in fechas_ordenadas %}
-            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="dia-{{ forloop.counter }}">
-
-                {% for turno in turnos_por_dia|get_item:fecha %}
-                    {% empty %}
-                    <div class="alert alert-info">No hay turnos disponibles este día.</div>
-                {% endfor %}
-
-                {% for turno in turnos_por_dia|get_item:fecha %}
-                <label class="card card-turno mb-2">
-                    <div class="card-body d-flex flex-row align-items-center">
-                        <!-- RADIO -->
-                        <div class="col-radio">
-                            <input type="radio" name="turno_id" value="{{ turno.id }}">
-                        </div>
-
-                        <!-- FECHA + HORA -->
-                        <div class="col-fecha d-flex flex-column">
-                            <span class="fecha">{{ turno.fecha|date:"l d \\d\\e F \\d\\e Y" }}</span>
-                            <span class="text-small-center">{{ turno.hora|time:"H:i" }}</span>
-                        </div>
-
-                        <!-- PROFESIONAL -->
-                        <div class="col-prof">
-                            <strong>{{ turno.profesional.nombre }}</strong>
-                            <span class="text-small-center">Consultorio {{ turno.profesional.consultorio }}</span>
-                        </div>
-
-                        <!-- ESPECIALIDAD -->
-                        <div class="col-esp">
-                            <strong>{{ turno.profesional.especialidad.nombre }}</strong>
-                            <span class="text-small-center">
-                                {% if turno.modalidad %}
-                                    {{ turno.get_modalidad_display }}
-                                {% else %}
-                                    {{ turno.profesional.get_tipo_consulta_display }}
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="col-accion">
-                            <button type="button" class="btn btn-success reservar-btn">
-                                Reservar
-                            </button>
-                        </div>
-                    </div>
-                </label>
-                {% endfor %}
-            </div>
+                <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link {% if forloop.first %}active{% endif %}"
+                    id="tab-{{ forloop.counter }}"
+                    data-bs-toggle="pill"
+                    data-bs-target="#dia-{{ forloop.counter }}"
+                    type="button"
+                    role="tab">
+                    {{ fecha|date:"D d/m"|capfirst }}
+                </button>
+                </li>
             {% endfor %}
+        </ul>
 
-        </div>
-    </form>
+        <form method="POST" action="{% url 'turnos:reservar_turno' %}" id="reservarForm">
+            {% csrf_token %}
+            <input type="hidden" name="paciente_id" value="{{ paciente_id }}">
+            <input type="hidden" name="modo" value="{{ query.modo }}">
+
+            <div class="tab-content">
+
+                {% for fecha in fechas_ordenadas %}
+                <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="dia-{{ forloop.counter }}">
+
+                    {% for turno in turnos_por_dia|get_item:fecha %}
+                        {% empty %}
+                        <div class="alert alert-info">No hay turnos disponibles este día.</div>
+                    {% endfor %}
+
+                    {% for turno in turnos_por_dia|get_item:fecha %}
+                    <label class="card card-turno mb-2">
+                        <div class="card-body d-flex flex-row align-items-center">
+                            <!-- RADIO -->
+                            <div class="col-radio">
+                                <input type="radio" name="turno_id" value="{{ turno.id }}">
+                            </div>
+
+                            <!-- FECHA + HORA -->
+                            <div class="col-fecha d-flex flex-column">
+                                <span class="fecha">{{ turno.fecha|date:"l d \\d\\e F \\d\\e Y" }}</span>
+                                <span class="text-small-center">{{ turno.hora|time:"H:i" }}</span>
+                            </div>
+
+                            <!-- PROFESIONAL -->
+                            <div class="col-prof">
+                                <strong>{{ turno.profesional.nombre }}</strong>
+                                <span class="text-small-center">Consultorio {{ turno.profesional.consultorio }}</span>
+                            </div>
+
+                            <!-- ESPECIALIDAD -->
+                            <div class="col-esp">
+                                <strong>{{ turno.profesional.especialidad.nombre }}</strong>
+                                <span class="text-small-center">
+                                    {% if turno.modalidad %}
+                                        {{ turno.get_modalidad_display }}
+                                    {% else %}
+                                        {{ turno.profesional.get_tipo_consulta_display }}
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="col-accion">
+                                <button type="button" class="btn btn-success reservar-btn">
+                                    Reservar
+                                </button>
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+            </div>
+        </form>
+    {% endif %}
 </div>
 
 
