@@ -122,10 +122,9 @@ class TurnosDisponiblesView(LoginRequiredMixin, View):
         if hora_hasta:
             qs = qs.filter(hora__lte=hora_hasta)
 
-        # Convertir a lista si aplicamos filtro por días (porque el filtro usa python-dates)
+        # El filtro usa python-dates, hay que convertir a lista para evitar problemas de queryset 
         turnos_list = list(qs)
 
-        # filtro por dias
         turnos_filtrados = self._filtrar_por_dias(turnos_list, dias_preferidos)
 
         # excluir turnos pasados (fecha/hora)
@@ -186,7 +185,6 @@ class ReservarTurnoView(LoginRequiredMixin, View):
             messages.error(request, "Faltan datos para reservar el turno.")
             return redirect(request.META.get("HTTP_REFERER", "/"))
 
-        # estados
         try:
             estado_disponible = Estado.objects.get(pk=1)
             estado_confirmado = Estado.objects.get(pk=2)
@@ -194,7 +192,6 @@ class ReservarTurnoView(LoginRequiredMixin, View):
             messages.error(request, "Estados no configurados correctamente.")
             return redirect(request.META.get("HTTP_REFERER", "/"))
 
-        # lock
         try:
             turno = Turno.objects.select_for_update().get(pk=turno_id)
         except Turno.DoesNotExist:

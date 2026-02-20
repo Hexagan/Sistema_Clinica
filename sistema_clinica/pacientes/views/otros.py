@@ -83,7 +83,6 @@ class ConsultasGestionesView(LoginRequiredMixin,PacienteAccessMixin, View):
         })
 
     def post(self, request, paciente_id):
-        # Más adelante podrás agregar lógica interna
         return redirect("pacientes:consultas_gestiones", paciente_id=paciente_id)
 
 class CoberturaMedicaView(LoginRequiredMixin,PacienteAccessMixin, View):

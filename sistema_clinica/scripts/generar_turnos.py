@@ -51,7 +51,6 @@ def run(*args):
                 while slot_dt < dt_fin:
                     hora = slot_dt.time()
 
-                    # Determinar modalidad según tipo del profesional
                     modalidades = []
 
                     if profesional.tipo_consulta == "PRES":
