@@ -13,8 +13,6 @@ from .models import (
     Disnea, SaturacionOxigeno, Indicaciones
 )
 
-from .mixins import PacienteAccessMixin
-
 class PesoAlturaView(PacienteAccessMixin, View):
     template_name = "controles/peso_altura.html"
     model = PesoAltura

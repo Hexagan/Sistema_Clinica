@@ -18,7 +18,7 @@ class ProfesionalAdmin(admin.ModelAdmin):
         "nombre", "email", "matricula", "estado", "especialidad",
         "mostrar_servicios", "dias_disponibles", "horario_inicio",
         "horario_fin", "tipo_consulta", "consultorio", "piso",
-        "foto_preview",   # <-- agregamos la columna
+        "foto_preview",
     )
     list_filter = ("estado", "especialidad", "servicios")
     search_fields = ("nombre", "email", "matricula")
@@ -28,7 +28,7 @@ class ProfesionalAdmin(admin.ModelAdmin):
         return ", ".join(s.nombre for s in obj.servicios.all())
     mostrar_servicios.short_description = "Servicios"
 
-    # NUEVA FUNCIÓN PARA MOSTRAR MINIATURA
+    # Mostrar miniatura
     def foto_preview(self, obj):
         if obj.foto:
             return format_html(

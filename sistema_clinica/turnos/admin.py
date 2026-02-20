@@ -20,7 +20,7 @@ class TurnoAdmin(admin.ModelAdmin):
     search_fields = (
         "paciente__nombre",
         "profesional__nombre",
-        "servicio__nombre",
+        "id",
     )
     list_filter = ("fecha", "profesional", "estado")
     ordering = ("fecha", "hora")
