@@ -1,5 +1,4 @@
 from django.views.generic import ListView, DetailView
-from django.shortcuts import get_object_or_404
 from .models import Profesional, Especialidad
 
 class ListaProfesionalesView(ListView):
@@ -20,7 +19,6 @@ class DetalleProfesionalView(DetailView):
     model = Profesional
     template_name = "profesionales/detalle_profesional.html"
     context_object_name = "profesional"
-    pk_url_kwarg = "profesional_id"
 
     def get_queryset(self):
         return (

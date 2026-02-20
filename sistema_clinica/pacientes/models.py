@@ -7,11 +7,11 @@ class Paciente(models.Model):
     perfil_usuario = models.ForeignKey(
         'usuarios.PerfilUsuario',
         on_delete=models.CASCADE,
-        related_name="pacientes_asociados"
+        related_name="pacientes"
     )
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    dni = models.CharField(max_length=20)
+    dni = models.CharField(max_length=20, unique=True)
     email = models.EmailField()
     telefono = models.CharField(max_length=30)
     fecha_nacimiento = models.DateField(null=True, blank=True)

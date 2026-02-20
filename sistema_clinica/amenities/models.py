@@ -12,6 +12,7 @@ class Amenity(models.Model):
 
     class Meta:
         ordering = ['nombre']
+        verbose_name_plural = "Amenities"
 
 class UsoAmenity(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
@@ -53,3 +54,6 @@ class BeneficioOtorgado(models.Model):
     def __str__(self):
         return f"{self.paciente} - {self.beneficio} @ {self.timestamp}"
 
+    class Meta:
+        verbose_name = "Beneficio Otorgado"
+        verbose_name_plural = "Beneficios Otorgados"

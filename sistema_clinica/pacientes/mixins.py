@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
 from pacientes.models import Paciente
 
 class PacienteAccessMixin():
@@ -12,7 +11,7 @@ class PacienteAccessMixin():
         paciente = get_object_or_404(Paciente, pk=paciente_id)
 
         if paciente not in request.user.perfil.pacientes.all():
-            return self.handle_no_permission()
+            return self.handle_no_permission()  
 
         # Guardar paciente en el mixin
         self.paciente = paciente

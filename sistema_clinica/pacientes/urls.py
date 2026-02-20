@@ -1,6 +1,5 @@
 from django.urls import path
 
-# Importar cada módulo de views
 from pacientes.views.portal import PortalPacienteView
 from pacientes.views.dashboard import (
     PacienteDetalleView,
