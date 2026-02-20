@@ -8,17 +8,7 @@ from pacientes.views.dashboard import (
     CrearPacienteView,
     CreacionPacienteExitosaView
 )
-from pacientes.views.controles import (
-    IndicacionesView,
-    PesoAlturaView,
-    TemperaturaView,
-    FrecuenciaCardiacaView,
-    PresionArterialView,
-    GlucemiaView,
-    FrecuenciaRespiratoriaView,
-    SaturacionOxigenoView,
-    DisneaView
-)
+
 from pacientes.views.mensajeria import (
     MensajeriaView,
     NuevoMensajeView,
@@ -48,19 +38,6 @@ urlpatterns = [
     path("crear/", CrearPacienteView.as_view(), name="crear_paciente"),
     path("creacion-exitosa/", CreacionPacienteExitosaView.as_view(), name="creacion_paciente_exitosa"),
     path("lista/", ListaPacientesView.as_view(), name="lista_pacientes"),
-
-    # ======================
-    #   CONTROLES
-    # ======================
-    path("indicaciones/<int:paciente_id>/", IndicacionesView.as_view(), name="indicaciones"),
-    path("peso-altura/<int:paciente_id>/", PesoAlturaView.as_view(), name="peso_altura"),
-    path("temperatura/<int:paciente_id>/", TemperaturaView.as_view(), name="temperatura"),
-    path("frecuencia-cardiaca/<int:paciente_id>/", FrecuenciaCardiacaView.as_view(), name="frecuencia_cardiaca"),
-    path("presion-arterial/<int:paciente_id>/", PresionArterialView.as_view(), name="presion_arterial"),
-    path("glucemia/<int:paciente_id>/", GlucemiaView.as_view(), name="glucemia"),
-    path("frecuencia-respiratoria/<int:paciente_id>/", FrecuenciaRespiratoriaView.as_view(), name="frecuencia_respiratoria"),
-    path("saturacion-oxigeno/<int:paciente_id>/", SaturacionOxigenoView.as_view(), name="saturacion_oxigeno"),
-    path("disnea/<int:paciente_id>/", DisneaView.as_view(), name="disnea"),
 
     # ======================
     #   MENSAJERÍA
