@@ -199,32 +199,67 @@
         </a>
 
         <!-- AMENITIES -->
-        <a data-bs-toggle="collapse" href="#submenuAmenities">
+        <a data-bs-toggle="collapse" href="#submenuAmenities" class="position-relative">
             <span class="material-symbols-outlined">grade</span>
             <span class="text">Amenities</span>
+
+            {% if beneficios_count > 0 %}
+                <span class="badge-amenities">
+                    {{ beneficios_count }}
+                </span>
+            {% endif %}
+
             <span class="material-symbols-outlined">chevron_right</span>
         </a>
 
         <div class="collapse submenu" id="submenuAmenities">
 
+            <!-- Gimnasio -->
             <a href="{% url 'amenities:gimnasio' paciente.id %}">
                 <span class="material-symbols-outlined">fitness_center</span>
                 <span class="text">Gimnasio</span>
+
+                {% if beneficios_por_amenity.gimnasio > 0 %}
+                    <span class="badge-amenity-item">
+                        {{ beneficios_por_amenity.gimnasio }}
+                    </span>
+                {% endif %}
             </a>
 
+            <!-- Nutrición -->
             <a href="{% url 'amenities:nutricion' paciente.id %}">
                 <span class="material-symbols-outlined">nutrition</span>
                 <span class="text">Nutrición</span>
+
+                {% if beneficios_por_amenity.nutricion > 0 %}
+                    <span class="badge-amenity-item">
+                        {{ beneficios_por_amenity.nutricion }}
+                    </span>
+                {% endif %}
             </a>
 
+            <!-- Talleres -->
             <a href="{% url 'amenities:talleres' paciente.id %}">
                 <span class="material-symbols-outlined">self_improvement</span>
                 <span class="text">Talleres de salud</span>
+
+                {% if beneficios_por_amenity.gimnasio > 0 %}
+                    <span class="badge-amenity-item">
+                        {{ beneficios_por_amenity.gimnasio }}
+                    </span>
+                {% endif %}
             </a>
 
+            <!-- Kiosco -->
             <a href="{% url 'amenities:kiosco' paciente.id %}">
                 <span class="material-symbols-outlined">local_cafe</span>
                 <span class="text">Kiosco</span>
+
+                {% if beneficios_por_amenity.kiosco > 0 %}
+                    <span class="badge-amenity-item">
+                        {{ beneficios_por_amenity.kiosco }}
+                    </span>
+                {% endif %}
             </a>
 
         </div>

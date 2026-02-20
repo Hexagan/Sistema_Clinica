@@ -36,7 +36,7 @@ class Turno(models.Model):
     fecha = models.DateField()
     hora = models.TimeField()
 
-    qr_code = models.CharField(max_length=200, blank=True)
+    qr_code = models.TextField(blank=True)
     check_in = models.DateTimeField(null=True, blank=True)
     observaciones = models.TextField(blank=True, null=True)
 

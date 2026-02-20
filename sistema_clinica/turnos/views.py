@@ -295,7 +295,7 @@ class TurnosHistorialView(LoginRequiredMixin, TemplateView):
                 t.es_vencido = True
                 historial.append(t)
 
-        historial_ordenado = sorted(historial, key=lambda t: (t.fecha, t.hora))
+        historial_ordenado = sorted(historial, key=lambda t: (t.fecha, t.hora), reverse=True)
         context.update({
             "paciente": paciente,
             "turnos": historial_ordenado,
@@ -341,16 +341,35 @@ class VerTurnoView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         paciente_id = kwargs.get("paciente_id")
         turno_id = kwargs.get("turno_id")
+
         perfil = self.request.user.perfil
         paciente = perfil.pacientes.get(pk=paciente_id)
-        turno = get_object_or_404(Turno, id=turno_id, paciente=paciente)
+
+        turno = get_object_or_404(
+            Turno.objects.select_related(
+                "profesional",
+                "profesional__especialidad",
+                "paciente"
+            ),
+            id=turno_id,
+            paciente=paciente
+        )
+
+        checkin_url = self.request.build_absolute_uri(
+            reverse("turnos:checkin_qr") +
+            f"?qr=TURNO:{turno.id};PACIENTE:{turno.paciente.id};FECHA:{turno.fecha};HORA:{turno.hora}"
+        )
+
         context.update({
             "turno": turno,
             "paciente": paciente,
+            "checkin_url": checkin_url,
             "desde_historial": "historial" in self.request.GET,
         })
+
         return context
 
 

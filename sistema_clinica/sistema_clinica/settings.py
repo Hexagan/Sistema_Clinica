@@ -69,6 +69,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'pacientes.context_processors.paciente_context',
+                'amenities.context_processors.beneficios_pendientes',
             ],
         },
     },
